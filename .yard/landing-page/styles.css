@@ -1,0 +1,443 @@
+/* Stacks — landing page.
+   Same tokens as the app so the page and the product read as one thing:
+   humanist sans for anything a person wrote, letterspaced mono for anything
+   the system knows. */
+
+:root {
+  color-scheme: light dark;
+
+  --paper: #fcfcfb;
+  --rail: #f3f3f1;
+  --surface: #ffffff;
+  --ink: #16181a;
+  --muted: #575c60;
+  --faint: #8f9599;
+  --line: #e5e5e1;
+  --line-strong: #d6d6d1;
+  --accent: #1c6b58;
+  --accent-ink: #ffffff;
+  --accent-soft: #e9f1ee;
+
+  --shadow-card: 0 1px 1px rgba(20, 24, 26, 0.03);
+  --shadow-lift: 0 18px 40px -12px rgba(20, 24, 26, 0.28), 0 2px 8px rgba(20, 24, 26, 0.08);
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --r-sm: 6px;
+  --r-md: 9px;
+  --r-lg: 14px;
+  --pad: clamp(20px, 5vw, 64px);
+  --wide: 1120px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0e1011;
+    --rail: #151719;
+    --surface: #1a1d1f;
+    --ink: #eceeef;
+    --muted: #a6acb0;
+    --faint: #767c80;
+    --line: #262a2d;
+    --line-strong: #343a3e;
+    --accent: #55c3a0;
+    --accent-ink: #06221b;
+    --accent-soft: #14261f;
+
+    --shadow-card: none;
+    --shadow-lift: 0 20px 44px -12px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  color: var(--faint);
+}
+
+/* --------------------------------------------------------------------- bar */
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px var(--pad);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* The mark is the name: three stacked bars, shortest on top. */
+.wordmark__mark {
+  width: 14px;
+  height: 14px;
+  background-image: linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-size: 8px 3px, 11px 3px, 14px 3px;
+  background-position: 0 0, 0 5.5px, 0 11px;
+}
+
+.bar__nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 14px;
+}
+
+.bar__nav a {
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.bar__nav a:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 560px) {
+  .bar__nav a:not(.cta) {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------- cta */
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cta:hover {
+  filter: brightness(1.08);
+}
+
+.bar__nav .cta {
+  color: var(--accent-ink);
+  padding: 8px 14px;
+  font-size: 13.5px;
+}
+
+/* -------------------------------------------------------------------- hero */
+
+main {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+
+.hero {
+  padding: clamp(56px, 11vw, 110px) 0 clamp(32px, 5vw, 52px);
+}
+
+.hero h1 {
+  margin: 14px 0 0;
+  font-size: clamp(2.6rem, 7.4vw, 4.4rem);
+  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -0.038em;
+}
+
+.lede {
+  max-width: 34em;
+  margin: 22px 0 0;
+  font-size: clamp(1rem, 1.7vw, 1.2rem);
+  color: var(--muted);
+}
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  margin-top: 32px;
+}
+
+.note {
+  color: var(--faint);
+}
+
+/* -------------------------------------------------------------------- demo */
+
+.demo {
+  padding-bottom: clamp(56px, 9vw, 96px);
+}
+
+.demo__label {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.demo__hint {
+  font-size: 13.5px;
+  color: var(--faint);
+}
+
+.demo__board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px;
+  background: var(--rail);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+
+@media (max-width: 640px) {
+  .demo__board {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dcol {
+  min-width: 0;
+  padding: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.dcol.is-target {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dcol__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 3px 10px;
+}
+
+.dcol__name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.dcol__count {
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.dcol__cards {
+  min-height: 62px;
+}
+
+.dcard {
+  margin-bottom: 6px;
+  padding: 11px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+  font-size: 14px;
+  line-height: 1.35;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dcard:last-child {
+  margin-bottom: 0;
+}
+
+.dcard:hover {
+  border-color: var(--line-strong);
+}
+
+.dcard.is-dragging {
+  position: fixed;
+  z-index: 40;
+  margin: 0;
+  cursor: grabbing;
+  pointer-events: none;
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
+  will-change: transform;
+}
+
+.dplaceholder {
+  margin-bottom: 6px;
+  border: 1px dashed var(--accent);
+  border-radius: var(--r-md);
+}
+
+body.is-dragging {
+  cursor: grabbing;
+}
+
+body.is-dragging .dcard:not(.is-dragging) {
+  transition: transform 0.19s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ---------------------------------------------------------------- features */
+
+/* Four items, so 2x2 — auto-fit would leave a dead cell at three across. */
+.features {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  margin-bottom: clamp(56px, 9vw, 96px);
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.features article {
+  padding: clamp(22px, 3vw, 32px);
+  background: var(--paper);
+}
+
+.features h2 {
+  margin: 0 0 8px;
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+.features p {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--muted);
+  max-width: 42ch;
+}
+
+@media (min-width: 720px) {
+  .features {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------- how */
+
+.how {
+  padding-bottom: clamp(56px, 9vw, 96px);
+}
+
+/* Numbered because these genuinely happen in order. */
+.steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: clamp(24px, 4vw, 44px);
+  margin: 18px 0 40px;
+  padding: 0;
+}
+
+.steps li {
+  border-top: 1px solid var(--line-strong);
+  padding-top: 16px;
+}
+
+.steps__n {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.steps h3 {
+  margin: 10px 0 6px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+.steps p {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+
+/* -------------------------------------------------------------------- foot */
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 26px var(--pad) 44px;
+  border-top: 1px solid var(--line);
+  color: var(--faint);
+}
+
+.foot a {
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

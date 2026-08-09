@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "product_slug": "stacks",
+  "ignore_files": [],
+  "app": {
+    "dir": "app",
+    "access": "authenticated",
+    "database": true
+  },
+  "landing_page": {
+    "dir": ".yard/landing-page"
+  }
+}

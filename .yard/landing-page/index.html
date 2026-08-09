@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Stacks — kanban boards, minus the setup</title>
+  <meta name="description" content="A free kanban board. Sign in with Yard and your first board is already there: columns, cards, and a drag that tracks your hand." />
+  <link rel="stylesheet" href="styles.css" />
+  <!--
+    embed.js exposes window.yard.product and wires [data-yard] / [data-action].
+    Every bound element below also carries static copy, because tagline and
+    description are dashboard-only fields that may still be empty.
+  -->
+  <script src="https://yard.sh/embed.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <span class="wordmark">
+      <span class="wordmark__mark" aria-hidden="true"></span>
+      Stacks
+    </span>
+    <nav class="bar__nav">
+      <a href="#how">How it works</a>
+      <a class="cta cta--sm" data-app-link href="/stacks/app/">Open Stacks</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="mono eyebrow">Free · Kanban · Built on Yard</p>
+      <h1>Kanban,<br />minus the setup.</h1>
+      <p class="lede" data-yard="tagline">
+        Sign in with Yard and your first board is already there — three columns,
+        waiting for the first card. No workspace to name, no team to invite.
+      </p>
+      <div class="hero__actions">
+        <a class="cta" data-app-link data-yard-when="signed_out" href="/stacks/app/">
+          Start free — sign in with Yard
+        </a>
+        <a class="cta" data-app-link data-yard-when="signed_in" href="/stacks/app/">
+          Open your boards
+        </a>
+        <span class="mono note" id="price-note">No credit card. No trial clock.</span>
+      </div>
+    </section>
+
+    <!-- The hero's real argument: a board you can actually move a card on. -->
+    <section class="demo" aria-label="Interactive demo">
+      <div class="demo__label">
+        <span class="mono eyebrow">Try it</span>
+        <span class="demo__hint">Drag a card between columns</span>
+      </div>
+
+      <div class="demo__board" id="demo-board">
+        <div class="dcol" data-name="To do">
+          <div class="dcol__head"><span class="dcol__name">To do</span><span class="mono dcol__count">2</span></div>
+          <div class="dcol__cards">
+            <div class="dcard">Draft the launch note</div>
+            <div class="dcard">Pick a header photo</div>
+          </div>
+        </div>
+        <div class="dcol" data-name="In progress">
+          <div class="dcol__head"><span class="dcol__name">In progress</span><span class="mono dcol__count">1</span></div>
+          <div class="dcol__cards">
+            <div class="dcard">Rewrite the pricing page</div>
+          </div>
+        </div>
+        <div class="dcol" data-name="Done">
+          <div class="dcol__head"><span class="dcol__name">Done</span><span class="mono dcol__count">1</span></div>
+          <div class="dcol__cards">
+            <div class="dcard">Ship the changelog</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <article>
+        <h2>Drag that tracks your hand</h2>
+        <p>Cards lift, tilt the way you throw them, and drop into a gap that opens as you go. Prefer the keyboard? Focus a card and press Cmd + arrow.</p>
+      </article>
+      <article>
+        <h2>As many boards as you keep</h2>
+        <p>One for work, one for the house, one for the thing you will get to eventually. Switch between them from the top bar.</p>
+      </article>
+      <article>
+        <h2>Saves as you type</h2>
+        <p>There is no save button. New cards, renamed columns, and every move persist the moment you make them.</p>
+      </article>
+      <article>
+        <h2>Yours alone</h2>
+        <p>Boards are scoped to your Yard account. Sign-in is handled by Yard, so Stacks never sees a password.</p>
+      </article>
+    </section>
+
+    <section class="how" id="how">
+      <p class="mono eyebrow">How it works</p>
+      <ol class="steps">
+        <li>
+          <span class="mono steps__n">01</span>
+          <h3>Sign in with Yard</h3>
+          <p>No new password to invent, no email to confirm.</p>
+        </li>
+        <li>
+          <span class="mono steps__n">02</span>
+          <h3>Your board is waiting</h3>
+          <p>To do, In progress, Done — already made, already yours.</p>
+        </li>
+        <li>
+          <span class="mono steps__n">03</span>
+          <h3>Move a card</h3>
+          <p>That is the whole product. Everything else is out of your way.</p>
+        </li>
+      </ol>
+      <a class="cta" data-app-link href="/stacks/app/">Open Stacks</a>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span class="mono">Stacks · Free forever</span>
+    <span class="mono">Hosted on <a href="https://yard.sh">Yard</a></span>
+  </footer>
+
+  <script src="demo.js"></script>
+</body>
+</html>

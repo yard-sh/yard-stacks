@@ -1,0 +1,827 @@
+/* Stacks — clean & minimal.
+   Two typographic registers carry the whole personality:
+   a humanist sans for anything a person wrote, and a letterspaced mono for
+   anything the system knows (counts, labels, state, timestamps). */
+
+:root {
+  color-scheme: light;
+
+  --paper: #fcfcfb;
+  --rail: #f3f3f1;
+  --surface: #ffffff;
+  --ink: #16181a;
+  --muted: #6c7175;
+  --faint: #9aa0a4;
+  --line: #e5e5e1;
+  --line-strong: #d6d6d1;
+  --accent: #1c6b58;
+  --accent-ink: #ffffff;
+  --accent-soft: #e9f1ee;
+  --danger: #a8302a;
+
+  --shadow-card: 0 1px 1px rgba(20, 24, 26, 0.03);
+  --shadow-lift: 0 18px 40px -12px rgba(20, 24, 26, 0.28), 0 2px 8px rgba(20, 24, 26, 0.08);
+  --shadow-pop: 0 12px 32px -8px rgba(20, 24, 26, 0.18), 0 1px 2px rgba(20, 24, 26, 0.08);
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --r-sm: 6px;
+  --r-md: 9px;
+  --r-lg: 14px;
+  --topbar-h: 56px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #0e1011;
+  --rail: #151719;
+  --surface: #1a1d1f;
+  --ink: #eceeef;
+  --muted: #949a9e;
+  --faint: #6d7478;
+  --line: #262a2d;
+  --line-strong: #343a3e;
+  --accent: #55c3a0;
+  --accent-ink: #06221b;
+  --accent-soft: #14261f;
+  --danger: #e2726b;
+
+  --shadow-card: none;
+  --shadow-lift: 0 20px 44px -12px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 14px 34px -8px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --paper: #0e1011;
+    --rail: #151719;
+    --surface: #1a1d1f;
+    --ink: #eceeef;
+    --muted: #949a9e;
+    --faint: #6d7478;
+    --line: #262a2d;
+    --line-strong: #343a3e;
+    --accent: #55c3a0;
+    --accent-ink: #06221b;
+    --accent-soft: #14261f;
+    --danger: #e2726b;
+
+    --shadow-card: none;
+    --shadow-lift: 0 20px 44px -12px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-pop: 0 14px 34px -8px rgba(0, 0, 0, 0.6);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* An author `display` beats the UA stylesheet's [hidden] rule, which would
+   leave .sheet laid out as a grid and its scrim eating every click. */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.eyebrow {
+  color: var(--faint);
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 10px 14px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 0 0 var(--r-sm) 0;
+  text-decoration: none;
+}
+
+.skip:focus {
+  left: 0;
+}
+
+/* ------------------------------------------------------------------ topbar */
+
+.topbar {
+  height: var(--topbar-h);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.topbar__group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding-right: 12px;
+  margin-right: 2px;
+  border-right: 1px solid var(--line);
+  height: 22px;
+  white-space: nowrap;
+}
+
+/* The mark is the name: three stacked bars, shortest on top. */
+.wordmark__mark {
+  width: 13px;
+  height: 13px;
+  display: block;
+  background-image: linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-size: 7px 3px, 10px 3px, 13px 3px;
+  background-position: 0 0, 0 5px, 0 10px;
+}
+
+.picker {
+  position: relative;
+  min-width: 0;
+}
+
+.picker__button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 46vw;
+  padding: 5px 9px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+}
+
+.picker__button:hover {
+  background: var(--rail);
+  border-color: var(--line);
+}
+
+.picker__button > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.picker__button svg {
+  flex: none;
+  color: var(--faint);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  min-width: 240px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 5px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-pop);
+}
+
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 9px;
+  background: none;
+  border: 0;
+  border-radius: var(--r-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu__item:hover {
+  background: var(--rail);
+}
+
+.menu__item[aria-current="true"] {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.menu__item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu__count {
+  margin-left: auto;
+  color: var(--faint);
+}
+
+.menu__rule {
+  height: 1px;
+  margin: 5px 4px;
+  background: var(--line);
+}
+
+.iconbutton {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.iconbutton:hover {
+  background: var(--rail);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.icon-moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .icon-sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .icon-moon {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .icon-sun {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .icon-moon {
+    display: block;
+  }
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.account a {
+  color: var(--muted);
+}
+
+.account__email {
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .account__email {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------- board */
+
+.board {
+  height: calc(100dvh - var(--topbar-h));
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 20px 24px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.board:focus {
+  outline: none;
+}
+
+.board__status {
+  color: var(--faint);
+  padding: 8px 4px;
+}
+
+/* ------------------------------------------------------------------ column */
+
+.column {
+  flex: none;
+  width: 288px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--rail);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.column.is-target {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.column__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px 9px;
+  cursor: grab;
+  /* pan-y, not none: a plain touch still scrolls the board. A deliberate
+     hold is what picks a column up (see the drag engine in app.js). */
+  touch-action: pan-y;
+}
+
+.column__head:active {
+  cursor: grabbing;
+}
+
+.column__name {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 5px;
+  margin: -3px -5px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
+}
+
+.column__name:hover {
+  border-color: var(--line-strong);
+}
+
+.column__name:focus {
+  background: var(--surface);
+  border-color: var(--accent);
+  outline: none;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.column__count {
+  flex: none;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Destructive controls stay out of the way until you go looking for them. */
+.column__head .iconbutton {
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+.column:hover .column__head .iconbutton,
+.column__head .iconbutton:focus-visible {
+  opacity: 1;
+}
+
+body.is-dragging .column__head .iconbutton {
+  opacity: 0;
+}
+
+.column__cards {
+  flex: 1;
+  min-height: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 8px;
+  scrollbar-width: thin;
+}
+
+.column__foot {
+  padding: 6px 8px 8px;
+}
+
+/* -------------------------------------------------------------------- card */
+
+.card {
+  position: relative;
+  margin-bottom: 6px;
+  padding: 10px 11px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+}
+
+.card__title {
+  font-size: 13.5px;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  overflow-wrap: anywhere;
+}
+
+.card__note {
+  margin-top: 7px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.card__note::before {
+  content: "";
+  width: 9px;
+  height: 7px;
+  background-image: linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-size: 9px 1px, 9px 1px, 6px 1px;
+  background-position: 0 0, 0 3px, 0 6px;
+}
+
+/* Drag: the card lifts off the board and tilts into its direction of travel.
+   This is the one place the interface raises its voice. */
+.card.is-dragging {
+  position: fixed;
+  z-index: 60;
+  margin: 0;
+  cursor: grabbing;
+  pointer-events: none;
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
+  will-change: transform;
+}
+
+.column.is-dragging-column {
+  position: fixed;
+  z-index: 60;
+  cursor: grabbing;
+  pointer-events: none;
+  opacity: 1;
+  box-shadow: var(--shadow-lift);
+  will-change: transform;
+}
+
+.placeholder {
+  margin-bottom: 6px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  background: transparent;
+}
+
+.column.is-target .placeholder {
+  border-color: var(--accent);
+}
+
+.placeholder--column {
+  flex: none;
+  align-self: stretch;
+  margin-bottom: 0;
+  border-radius: var(--r-lg);
+}
+
+body.is-dragging {
+  cursor: grabbing;
+}
+
+body.is-dragging .card:not(.is-dragging),
+body.is-dragging .column:not(.is-dragging-column) {
+  transition: transform 0.19s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ---------------------------------------------------------------- composer */
+
+.composer {
+  width: 100%;
+  display: block;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  color: var(--muted);
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.composer:hover {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.composer__input {
+  width: 100%;
+  display: block;
+  padding: 10px 11px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  line-height: 1.4;
+  resize: none;
+  outline: none;
+}
+
+.composer__hint {
+  display: flex;
+  gap: 10px;
+  padding: 6px 2px 0;
+  color: var(--faint);
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  padding: 1px 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+}
+
+/* The trailing rail affordance for adding a column. */
+.addcolumn {
+  flex: none;
+  width: 288px;
+  padding: 12px;
+  background: transparent;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-lg);
+  color: var(--muted);
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.addcolumn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  border-style: solid;
+}
+
+/* ------------------------------------------------------------------ button */
+
+.button {
+  padding: 7px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.button:hover {
+  border-color: var(--ink);
+}
+
+.button--danger {
+  color: var(--danger);
+  border-color: var(--line);
+}
+
+.button--danger:hover {
+  border-color: var(--danger);
+}
+
+/* ------------------------------------------------------------------- sheet */
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.sheet__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 20, 22, 0.34);
+  animation: fade 0.14s ease;
+}
+
+.sheet__panel {
+  position: relative;
+  width: min(520px, 100%);
+  max-height: 84dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-pop);
+  animation: rise 0.16s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.sheet__title {
+  width: 100%;
+  padding: 4px 6px;
+  margin: 0 -6px 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  resize: none;
+  overflow: hidden;
+}
+
+.sheet__title:hover {
+  border-color: var(--line);
+}
+
+.sheet__title:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.sheet__label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.sheet__body {
+  flex: 1;
+  min-height: 140px;
+  padding: 10px 11px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  line-height: 1.55;
+  resize: none;
+}
+
+.sheet__body:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.sheet__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.sheet__meta {
+  color: var(--faint);
+}
+
+/* ------------------------------------------------------------------- toast */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  z-index: 90;
+  transform: translateX(-50%);
+  padding: 9px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  box-shadow: var(--shadow-pop);
+  animation: rise 0.16s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.sheet__panel,
+.toast {
+  animation-fill-mode: both;
+}
+
+.toast {
+  transform: translateX(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .board {
+    padding: 14px 14px 18px;
+    scroll-snap-type: x mandatory;
+  }
+  .column,
+  .addcolumn {
+    width: 84vw;
+    scroll-snap-align: start;
+  }
+}
