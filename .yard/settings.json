@@ -21,7 +21,7 @@
       {
         "name": "Hello World!",
         "price_cents": 0,
-        "is_default": true,
+        "is_default": false,
         "pricing_model": "one_time"
       }
     ]
