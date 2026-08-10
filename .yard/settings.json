@@ -8,6 +8,16 @@
     "database": true
   },
   "landing_page": {
-    "dir": ".yard/landing-page"
+    "dir": "landing-page"
+  },
+  "pricing": {
+    "tiers": [
+      {
+        "name": "Base",
+        "price_cents": 0,
+        "is_default": true,
+        "pricing_model": "one_time"
+      }
+    ]
   }
 }

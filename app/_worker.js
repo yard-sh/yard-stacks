@@ -8,8 +8,9 @@
 // .yard/settings.json sets app.access: "authenticated", so anonymous visitors
 // are sent through sign-in at the edge and never reach this code in production.
 //
-// Locally (wrangler dev) there IS no edge: whatever X-Yard-User-Id you send
-// is believed. Useful for exercising CRUD, worthless for validating auth.
+// This only ever runs on the edge — there is no local way to run it, so the
+// headers are always the verified ones. The "local" fallback in the log lines
+// below is a defensive default, not a supported mode.
 
 const MAX_NAME = 80;
 const MAX_TITLE = 200;

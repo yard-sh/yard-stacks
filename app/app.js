@@ -874,7 +874,7 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 });
 
 // __yard/auth/me is answered by the Yard edge — no backend code needed.
-// It does not exist under local wrangler dev, so this must fail soft.
+// Only the edge serves it, so this fails soft rather than assuming a response.
 async function renderAccount() {
   const me = await fetch("__yard/auth/me")
     .then((r) => r.json())
