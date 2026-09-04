@@ -1,16 +1,13 @@
-// Stacks — backend.
+// Stacks backend.
 //
 // No ports, no listen(): Yard runs this as a fetch handler. Requests arrive
 // with the app path rooted at "/" and, for signed-in visitors, trusted
 // identity headers the edge verified:
-//   X-Yard-User-Id, X-Yard-Email, X-Yard-Entitlement, X-Yard-Environment
-// Clients can never spoof these — the edge strips inbound X-Yard-* first.
-// .yard/settings.json sets app.access: "authenticated", so anonymous visitors
-// are sent through sign-in at the edge and never reach this code in production.
-//
-// This only ever runs on the edge — there is no local way to run it, so the
-// headers are always the verified ones. The "local" fallback in the log lines
-// below is a defensive default, not a supported mode.
+//   X-Yard-User-Id, X-Yard-Email, X-Yard-Entitlement, X-Yard-Tier, X-Yard-Sandbox
+// Clients can never spoof these: the edge strips inbound X-Yard-* first, and
+// `yard dev` stamps the same headers locally from the persona you pick.
+// The service entry in .yard/settings.json sets access: "authenticated", so
+// anonymous visitors are sent through sign-in before they reach this code.
 
 const MAX_NAME = 80;
 const MAX_TITLE = 200;
@@ -25,12 +22,9 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Never serve deploy inputs. Yard excludes these server-side; this guard
-    // keeps local dev (and any other host) honest.
-    if (
-      url.pathname.startsWith("/migrations/") ||
-      url.pathname === "/_worker.js"
-    ) {
+    // Never serve the backend as an asset. Yard excludes it server-side; this
+    // guard keeps any other host honest.
+    if (url.pathname === "/_service.js") {
       return new Response("Not found", { status: 404 });
     }
 
@@ -43,7 +37,6 @@ export default {
           path: redactPath(url.pathname),
           status: response.status,
           user: shortId(request.headers.get("X-Yard-User-Id")),
-          env: request.headers.get("X-Yard-Environment") || "local",
           ms: Date.now() - started,
         });
         return response;
@@ -62,25 +55,17 @@ export default {
 };
 
 async function handleAPI(request, env, url) {
+  // Every API route is per-user data. The access gate normally guarantees the
+  // header; this is the backstop.
   const user = request.headers.get("X-Yard-User-Id");
   const method = request.method;
-  // ["api", "boards", "<id>", "columns"] — leading "api" dropped below.
-  const [, ...seg] = url.pathname.split("/").filter(Boolean);
-
-  if (seg[0] === "me" && seg.length === 1) {
-    return json({
-      user_id: user,
-      email: request.headers.get("X-Yard-Email") || "",
-      entitlement: request.headers.get("X-Yard-Entitlement") || "none",
-      environment: request.headers.get("X-Yard-Environment") || "local",
-    });
-  }
-
-  // Everything past this point is per-user data.
   if (!user) {
     log("auth.rejected", { method, path: url.pathname });
     return json({ error: "sign in to use Stacks" }, 401);
   }
+
+  // ["api", "boards", "<id>", "columns"]: the leading "api" is dropped.
+  const [, ...seg] = url.pathname.split("/").filter(Boolean);
 
   // /api/boards
   if (seg[0] === "boards" && seg.length === 1) {
@@ -179,7 +164,7 @@ async function seedBoard(env, user) {
   });
 
   const welcome = [
-    ["Drag me to In progress", "Cards move between columns by dragging them — or focus a card and press Cmd/Ctrl + arrow keys."],
+    ["Drag me to In progress", "Cards move between columns by dragging them, or by focusing a card and pressing Cmd/Ctrl + arrow keys."],
     ["Rename a column by clicking its name", "Every change saves the moment you make it. There is no save button."],
   ];
   welcome.forEach(([title, body], i) => {
@@ -284,7 +269,7 @@ async function renameBoard(request, env, board) {
 }
 
 async function deleteBoard(env, board) {
-  // Explicit cascade — see the note at the top of 0001_init.sql.
+  // Explicit cascade: see the note at the top of 0001_init.sql.
   const results = await env.DB.batch([
     env.DB.prepare("DELETE FROM cards WHERE board_id = ?1").bind(board.id),
     env.DB.prepare("DELETE FROM board_columns WHERE board_id = ?1").bind(board.id),
@@ -453,7 +438,7 @@ async function deleteCard(env, card) {
 // card across columns, and reordering the columns themselves:
 //   { columns: { "<columnId>": ["<cardId>", ...] }, columnOrder: ["<columnId>", ...] }
 // Only the touched columns need to be listed. Every id is re-checked against
-// this board before anything is written — the client's word is never enough.
+// this board before anything is written: the client's word is never enough.
 async function reorder(request, env, board) {
   const payload = await readJSON(request);
   const columns = payload.columns || {};
@@ -594,13 +579,13 @@ function json(data, status = 200) {
 
 /* ------------------------------------------------------------------ logging */
 //
-// Read these back with `yard app logs --env production` (add --since 2h).
+// Read these back with `yard service logs` (add --since 2h).
 // Every line starts with [stacks] and is one event, so it greps cleanly:
-//   yard app logs --env production | grep 'card.create'
+//   yard service logs | grep 'card.create'
 //
 // What is deliberately NOT logged: card titles, note bodies, board and column
 // names, and emails. Those are the user's content. Ids are truncated to 8
-// characters — enough to correlate lines within a session, not enough to be a
+// characters: enough to correlate lines within a session, not enough to be a
 // durable identifier sitting in a log store. Sizes are logged as lengths.
 
 function log(event, fields) {

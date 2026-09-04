@@ -1,40 +1,17 @@
-// Landing page runtime: point the CTAs at the app, fold in product data, and
-// make the hero board genuinely draggable. The hero's argument for a kanban
-// app is a card you can actually move, so the demo is real, not a picture.
+// The hero board is genuinely draggable. The argument for a kanban app is a
+// card you can actually move, so the board is real rather than a picture.
+// Nothing persists: a reload puts the cards back.
 (function () {
   "use strict";
 
-  /* ------------------------------------------------- product-derived bits */
-
-  var product = (window.yard && window.yard.product) || null;
-
-  // The page serves at <handle>.yard.sh/<slug>, which may or may not carry a
-  // trailing slash — so a bare relative "app/" is not safe here. Build the
-  // path from the slug, and keep the hardcoded fallback already in the HTML.
-  if (product && product.slug) {
-    var href = "/" + product.slug + "/app/";
-    var links = document.querySelectorAll("[data-app-link]");
-    for (var i = 0; i < links.length; i++) links[i].setAttribute("href", href);
-  }
-
-  // Say the real price rather than asserting "free" and hoping.
-  if (product && typeof product.price_cents === "number") {
-    var note = document.getElementById("price-note");
-    if (note && product.price_cents > 0) {
-      note.textContent = "$" + (product.price_cents / 100).toFixed(2);
-    }
-  }
-
-  /* ------------------------------------------------------- the demo board */
-
-  var board = document.getElementById("demo-board");
+  var board = document.getElementById("board");
   if (!board) return;
 
   var drag = null;
 
   board.addEventListener("pointerdown", function (event) {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    var card = event.target.closest(".dcard");
+    var card = event.target.closest(".b-card");
     if (!card) return;
 
     drag = {
@@ -95,11 +72,11 @@
     drag.grabX = drag.startX - rect.left;
     drag.grabY = drag.startY - rect.top;
 
-    var placeholder = document.createElement("div");
-    placeholder.className = "dplaceholder";
-    placeholder.style.height = rect.height + "px";
-    el.parentNode.insertBefore(placeholder, el);
-    drag.placeholder = placeholder;
+    var slot = document.createElement("div");
+    slot.className = "b-slot";
+    slot.style.height = rect.height + "px";
+    el.parentNode.insertBefore(slot, el);
+    drag.slot = slot;
 
     el.style.width = rect.width + "px";
     el.style.height = rect.height + "px";
@@ -129,7 +106,7 @@
   }
 
   function reposition() {
-    var columns = [].slice.call(board.querySelectorAll(".dcol"));
+    var columns = [].slice.call(board.querySelectorAll(".b-col"));
     var column = null;
     var nearestGap = Infinity;
 
@@ -152,8 +129,8 @@
     }
     if (!column) return;
 
-    var list = column.querySelector(".dcol__cards");
-    var cards = [].slice.call(list.querySelectorAll(".dcard:not(.is-dragging)"));
+    var list = column.querySelector(".b-col__cards");
+    var cards = [].slice.call(list.querySelectorAll(".b-card:not(.is-dragging)"));
 
     var ref = null;
     for (var j = 0; j < cards.length; j++) {
@@ -170,17 +147,17 @@
       drag.column = column;
     }
 
-    if (drag.placeholder.parentNode === list && drag.placeholder.nextElementSibling === ref) {
+    if (drag.slot.parentNode === list && drag.slot.nextElementSibling === ref) {
       return;
     }
     flip(function () {
-      list.insertBefore(drag.placeholder, ref);
+      list.insertBefore(drag.slot, ref);
     });
   }
 
-  // FLIP: measure, mutate, invert, play — so the gap opens instead of jumping.
+  // FLIP: measure, mutate, invert, play, so the gap opens instead of jumping.
   function flip(mutate) {
-    var movers = [].slice.call(board.querySelectorAll(".dcard:not(.is-dragging)"));
+    var movers = [].slice.call(board.querySelectorAll(".b-card:not(.is-dragging)"));
     var before = movers.map(function (n) {
       return n.getBoundingClientRect();
     });
@@ -218,12 +195,12 @@
 
     cancelAnimationFrame(drag.frame);
     var el = drag.el;
-    var placeholder = drag.placeholder;
-    var slot = placeholder.getBoundingClientRect();
+    var slot = drag.slot;
+    var rest = slot.getBoundingClientRect();
 
     el.style.transition = "transform .17s cubic-bezier(.2,0,0,1)";
     el.style.transform =
-      "translate3d(" + slot.left + "px," + slot.top + "px,0) rotate(0deg)";
+      "translate3d(" + rest.left + "px," + rest.top + "px,0) rotate(0deg)";
 
     var settled = false;
     var finish = function () {
@@ -231,7 +208,7 @@
       settled = true;
       el.style.cssText = "";
       el.classList.remove("is-dragging");
-      placeholder.replaceWith(el);
+      slot.replaceWith(el);
       document.body.classList.remove("is-dragging");
       if (drag && drag.column) drag.column.classList.remove("is-target");
       teardown();
@@ -243,10 +220,10 @@
   }
 
   function recount() {
-    var columns = board.querySelectorAll(".dcol");
+    var columns = board.querySelectorAll(".b-col");
     for (var i = 0; i < columns.length; i++) {
-      columns[i].querySelector(".dcol__count").textContent =
-        columns[i].querySelectorAll(".dcard").length;
+      columns[i].querySelector(".b-col__n").textContent =
+        columns[i].querySelectorAll(".b-card").length;
     }
   }
 

@@ -1,12 +1,16 @@
 {
-  "version": 2,
-  "product_slug": "stacks",
+  "version": 7,
+  "project_slug": "stacks",
   "ignore_files": [],
-  "app": {
-    "dir": "app",
-    "access": "authenticated",
-    "database": true
-  },
+  "services": [
+    {
+      "dir": "app",
+      "name": "app",
+      "url": "/app",
+      "access": "authenticated",
+      "database_access": true
+    }
+  ],
   "landing_page": {
     "dir": "landing-page"
   },
@@ -16,13 +20,8 @@
         "name": "Base",
         "price_cents": 0,
         "is_default": true,
-        "pricing_model": "one_time"
-      },
-      {
-        "name": "Hello World!",
-        "price_cents": 0,
-        "is_default": false,
-        "pricing_model": "one_time"
+        "pricing_model": "one_time",
+        "description": "Free forever"
       }
     ]
   }

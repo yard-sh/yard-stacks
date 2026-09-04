@@ -4,7 +4,7 @@
 -- the next deploy. IF NOT EXISTS makes that re-run harmless.
 --
 -- The table is board_columns, not columns, to stay clear of SQLite keywords.
--- Deletes cascade explicitly in _worker.js: D1 does not reliably honour
+-- Deletes cascade explicitly in _service.js: D1 does not reliably honour
 -- PRAGMA foreign_keys, so ON DELETE CASCADE here would silently do nothing.
 
 CREATE TABLE IF NOT EXISTS boards (

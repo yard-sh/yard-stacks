@@ -1,9 +1,9 @@
-// Stacks — frontend.
+// Stacks frontend.
 //
 // Zero dependencies, one module. Every fetch is RELATIVE ("api/boards", not
 // "/api/boards"): the app is mounted at /<slug>/app/, so a root-absolute URL
 // would resolve against the domain root. Board selection lives in the hash
-// for the same reason — pushState to a nested path would break every
+// for the same reason: pushState to a nested path would break every
 // relative URL on the page.
 
 const boardEl = document.getElementById("board");
@@ -149,8 +149,6 @@ function renderCard(card, column) {
   node.tabIndex = 0;
   node.append(el("div", "card__title", card.title));
   if (card.body) node.append(el("div", "card__note", "Notes"));
-  node.dataset.body = card.body || "";
-  node.dataset.updated = card.updated_at || "";
   return node;
 }
 
@@ -569,7 +567,7 @@ function activate() {
 function tick() {
   if (!drag || !drag.active) return;
 
-  // Tilt tracks horizontal velocity — the card leans the way it is thrown.
+  // Tilt tracks horizontal velocity: the card leans the way it is thrown.
   const velocity = drag.x - drag.lastX;
   drag.lastX = drag.x;
   drag.tilt += (clamp(velocity * 0.35, -2.6, 2.6) - drag.tilt) * 0.2;
@@ -750,7 +748,7 @@ function onPointerUp(event) {
 function cardPayload() {
   const columns = {};
   const touched = new Set([drag.sourceColumnId]);
-  // The placeholder is already gone by now — read the card's new home.
+  // The placeholder is already gone by now, so read the card's new home.
   const landed = drag.el.closest(".column");
   if (landed) touched.add(landed.dataset.id);
 
@@ -873,8 +871,8 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
   } catch {}
 });
 
-// __yard/auth/me is answered by the Yard edge — no backend code needed.
-// Only the edge serves it, so this fails soft rather than assuming a response.
+// __yard/auth/me is answered by Yard itself, hosted and under yard dev, so no
+// backend code is needed. It fails soft anywhere the endpoint is missing.
 async function renderAccount() {
   const me = await fetch("__yard/auth/me")
     .then((r) => r.json())

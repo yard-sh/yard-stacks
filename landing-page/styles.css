@@ -1,52 +1,46 @@
-/* Stacks — landing page.
-   Same tokens as the app so the page and the product read as one thing:
-   humanist sans for anything a person wrote, letterspaced mono for anything
-   the system knows. */
+/* Stacks landing page.
+
+   The page is one index card: typed display face, blue ruling, and a single
+   red rule across the top. Colour appears exactly twice (that rule and the
+   glyph that echoes it), so everything else has to earn its place on the
+   grid instead of on the palette. */
 
 :root {
   color-scheme: light dark;
 
-  --paper: #fcfcfb;
-  --rail: #f3f3f1;
-  --surface: #ffffff;
-  --ink: #16181a;
-  --muted: #575c60;
-  --faint: #8f9599;
-  --line: #e5e5e1;
-  --line-strong: #d6d6d1;
-  --accent: #1c6b58;
-  --accent-ink: #ffffff;
-  --accent-soft: #e9f1ee;
+  --card: #fbfbfc;        /* the page: card stock */
+  --desk: #eef0f2;        /* recessed: the tray the board sits in */
+  --raised: #ffffff;      /* a card on the tray */
+  --graphite: #141518;    /* ink */
+  --pencil: #62676d;      /* second voice */
+  --faint: #9aa0a7;       /* labels, counts */
+  --rule: #c6d5e6;        /* the ruling of the card */
+  --rule-soft: #e0e5ea;   /* structural hairlines */
+  --margin: #d8483f;      /* the top rule. the only colour. */
 
-  --shadow-card: 0 1px 1px rgba(20, 24, 26, 0.03);
-  --shadow-lift: 0 18px 40px -12px rgba(20, 24, 26, 0.28), 0 2px 8px rgba(20, 24, 26, 0.08);
-
-  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
-  --r-sm: 6px;
-  --r-md: 9px;
-  --r-lg: 14px;
-  --pad: clamp(20px, 5vw, 64px);
-  --wide: 1120px;
+  --pad: clamp(20px, 5.5vw, 68px);
+  --wide: 1040px;
+  --r: 8px;
+
+  --lift: 0 16px 34px -14px rgba(20, 24, 26, 0.3), 0 2px 6px rgba(20, 24, 26, 0.07);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #0e1011;
-    --rail: #151719;
-    --surface: #1a1d1f;
-    --ink: #eceeef;
-    --muted: #a6acb0;
-    --faint: #767c80;
-    --line: #262a2d;
-    --line-strong: #343a3e;
-    --accent: #55c3a0;
-    --accent-ink: #06221b;
-    --accent-soft: #14261f;
+    --card: #121316;
+    --desk: #1a1c20;
+    --raised: #212429;
+    --graphite: #edeef0;
+    --pencil: #9ba1a8;
+    --faint: #737980;
+    --rule: #33475c;
+    --rule-soft: #262a2f;
+    --margin: #e2685e;
 
-    --shadow-card: none;
-    --shadow-lift: 0 20px 44px -12px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
+    --lift: 0 18px 38px -14px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -62,8 +56,8 @@
 
 body {
   margin: 0;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--card);
+  color: var(--graphite);
   font-family: var(--sans);
   font-size: 16px;
   line-height: 1.6;
@@ -75,150 +69,104 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--graphite);
   outline-offset: 3px;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
-.mono {
+/* The typed voice: column names, counts, captions, anything the catalogue
+   would have stamped rather than written. */
+.label {
+  display: inline-block;
+  margin: 0;
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.1em;
+  line-height: 1.4;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-}
-
-.eyebrow {
   color: var(--faint);
 }
 
-/* -------------------------------------------------------------------- ship */
+/* --------------------------------------------------------------- the rules */
 
-.ship {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 12px;
-  padding: 9px var(--pad);
-  background: var(--accent-soft);
-  border-bottom: 1px solid var(--line);
+.rule {
+  height: 1px;
+  background: var(--rule);
+  transform-origin: left center;
 }
 
-.ship__pill {
-  flex: none;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-weight: 600;
+.rule--margin {
+  background: var(--margin);
 }
 
-.ship__msg {
-  flex: 1 1 auto;
-  margin: 0;
-  min-width: 0;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.ship__msg code {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--ink);
-}
-
-.ship__tag {
-  flex: none;
-  color: var(--faint);
-}
-
-/* --------------------------------------------------------------------- bar */
+/* ----------------------------------------------------------------- top bar */
 
 .bar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 14px var(--pad);
-  background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 18px var(--pad);
 }
 
-.wordmark {
+.mark {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-/* The mark is the name: three stacked bars, shortest on top. */
-.wordmark__mark {
-  width: 14px;
-  height: 14px;
-  background-image: linear-gradient(var(--accent), var(--accent)),
-    linear-gradient(var(--accent), var(--accent)),
-    linear-gradient(var(--accent), var(--accent));
+/* Three cards seen edge-on, shortest first, and the top one is the red rule,
+   so the mark and the page are the same idea. */
+.mark__glyph {
+  width: 15px;
+  height: 13px;
+  background-image:
+    linear-gradient(var(--margin), var(--margin)),
+    linear-gradient(var(--graphite), var(--graphite)),
+    linear-gradient(var(--graphite), var(--graphite));
   background-repeat: no-repeat;
-  background-size: 8px 3px, 11px 3px, 14px 3px;
-  background-position: 0 0, 0 5.5px, 0 11px;
+  background-size: 9px 2px, 12px 2px, 15px 2px;
+  background-position: 0 0, 0 5px, 0 10px;
 }
 
-.bar__nav {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  font-size: 14px;
-}
+/* -------------------------------------------------------------- the button */
 
-.bar__nav a {
-  text-decoration: none;
-  color: var(--muted);
-}
-
-.bar__nav a:hover {
-  color: var(--ink);
-}
-
-@media (max-width: 560px) {
-  .bar__nav a:not(.cta) {
-    display: none;
-  }
-}
-
-/* --------------------------------------------------------------------- cta */
-
-.cta {
+.btn {
   display: inline-flex;
   align-items: center;
-  padding: 12px 20px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  border-radius: var(--r-sm);
+  padding: 13px 22px;
+  border-radius: var(--r);
+  background: var(--graphite);
+  color: var(--card);
   font-size: 15px;
   font-weight: 550;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.006em;
   text-decoration: none;
   white-space: nowrap;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.cta:hover {
-  filter: brightness(1.08);
+.btn:hover {
+  opacity: 0.86;
 }
 
-.bar__nav .cta {
-  color: var(--accent-ink);
-  padding: 8px 14px;
-  font-size: 13.5px;
+.btn:active {
+  transform: translateY(1px);
 }
 
-/* -------------------------------------------------------------------- hero */
+.btn--sm {
+  padding: 8px 15px;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------------- shell */
 
 main {
   max-width: var(--wide);
@@ -226,254 +174,261 @@ main {
   padding: 0 var(--pad);
 }
 
+/* -------------------------------------------------------------------- hero */
+
 .hero {
-  padding: clamp(56px, 11vw, 110px) 0 clamp(32px, 5vw, 52px);
+  padding: clamp(52px, 10vw, 104px) 0 clamp(40px, 6vw, 64px);
 }
 
 .hero h1 {
-  margin: 14px 0 0;
-  font-size: clamp(2.6rem, 7.4vw, 4.4rem);
-  line-height: 1.02;
+  margin: 18px 0 clamp(26px, 4vw, 40px);
+  font-family: var(--mono);
+  font-size: clamp(2.15rem, 6.6vw, 4.6rem);
   font-weight: 600;
-  letter-spacing: -0.038em;
+  line-height: 1.02;
+  letter-spacing: -0.055em;
 }
 
 .lede {
-  max-width: 34em;
-  margin: 22px 0 0;
-  font-size: clamp(1rem, 1.7vw, 1.2rem);
-  color: var(--muted);
+  max-width: 40ch;
+  margin: clamp(22px, 3vw, 32px) 0 0;
+  font-size: clamp(1rem, 1.5vw, 1.16rem);
+  color: var(--pencil);
 }
 
-.hero__actions {
+.actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 14px 20px;
-  margin-top: 32px;
+  margin-top: clamp(28px, 4vw, 38px);
 }
 
 .note {
+  font-size: 14px;
   color: var(--faint);
 }
 
-/* -------------------------------------------------------------------- demo */
+/* ------------------------------------------------------------- the board */
 
-.demo {
-  padding-bottom: clamp(56px, 9vw, 96px);
+.stack {
+  padding-bottom: clamp(48px, 7vw, 80px);
 }
 
-.demo__label {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.demo__hint {
-  font-size: 13.5px;
-  color: var(--faint);
-}
-
-.demo__board {
+/* No tray. The columns sit on the page like ruled sections of the card, and
+   the only raised things are the cards themselves. */
+.board {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  padding: 14px;
-  background: var(--rail);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
+  gap: clamp(12px, 2vw, 24px);
 }
 
-@media (max-width: 640px) {
-  .demo__board {
+@media (max-width: 700px) {
+  .board {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 }
 
-.dcol {
+.b-col {
   min-width: 0;
-  padding: 10px;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  transition: border-color 0.16s ease, background-color 0.16s ease;
+  padding: 8px 8px 10px;
+  border-radius: var(--r);
+  transition: background-color 0.16s ease;
 }
 
-.dcol.is-target {
-  border-color: var(--accent);
-  background: var(--accent-soft);
+.b-col.is-target {
+  background: var(--desk);
 }
 
-.dcol__head {
+.b-col__head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 8px;
-  padding: 2px 3px 10px;
+  padding: 2px 2px 10px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 10px;
 }
 
-.dcol__name {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-}
-
-.dcol__count {
+.b-col__n {
+  font-family: var(--mono);
+  font-size: 11px;
   color: var(--faint);
   font-variant-numeric: tabular-nums;
 }
 
-.dcol__cards {
-  min-height: 62px;
+.b-col__cards {
+  min-height: 58px;
 }
 
-.dcard {
-  margin-bottom: 6px;
-  padding: 11px 12px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-card);
-  font-size: 14px;
+.b-card {
+  margin-bottom: 7px;
+  padding: 12px 13px;
+  background: var(--raised);
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--r);
+  font-size: 14.5px;
   line-height: 1.35;
+  letter-spacing: -0.008em;
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.dcard:last-child {
+.b-card:last-child {
   margin-bottom: 0;
 }
 
-.dcard:hover {
-  border-color: var(--line-strong);
-}
-
-.dcard.is-dragging {
+.b-card.is-dragging {
   position: fixed;
   z-index: 40;
   margin: 0;
   cursor: grabbing;
   pointer-events: none;
-  border-color: var(--line-strong);
-  box-shadow: var(--shadow-lift);
+  box-shadow: var(--lift);
   will-change: transform;
 }
 
-.dplaceholder {
-  margin-bottom: 6px;
-  border: 1px dashed var(--accent);
-  border-radius: var(--r-md);
+.b-slot {
+  margin-bottom: 7px;
+  border: 1px dashed var(--rule);
+  border-radius: var(--r);
 }
 
 body.is-dragging {
   cursor: grabbing;
 }
 
-body.is-dragging .dcard:not(.is-dragging) {
+body.is-dragging .b-card:not(.is-dragging) {
   transition: transform 0.19s cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* ---------------------------------------------------------------- features */
+.hint {
+  margin: 14px 0 0;
+  font-size: 13.5px;
+  color: var(--faint);
+}
 
-/* Four items, so 2x2 — auto-fit would leave a dead cell at three across. */
-.features {
+/* ------------------------------------------------------------------- facts */
+
+/* Written on the lines: label in the margin, the claim on the rule. */
+.facts {
+  padding-bottom: clamp(48px, 7vw, 84px);
+}
+
+.fact {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1px;
-  margin-bottom: clamp(56px, 9vw, 96px);
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  overflow: hidden;
+  gap: 6px 40px;
+  padding: 20px 0;
+  border-top: 1px solid var(--rule);
 }
 
-.features article {
-  padding: clamp(22px, 3vw, 32px);
-  background: var(--paper);
+.fact:last-child {
+  border-bottom: 1px solid var(--rule);
 }
 
-.features h2 {
-  margin: 0 0 8px;
-  font-size: 1.02rem;
-  font-weight: 600;
-  letter-spacing: -0.012em;
-}
-
-.features p {
+.fact p {
   margin: 0;
-  font-size: 14.5px;
-  color: var(--muted);
-  max-width: 42ch;
+  max-width: 56ch;
+  font-size: 15px;
+  color: var(--pencil);
+}
+
+.fact .label {
+  padding-top: 3px;
+  color: var(--graphite);
 }
 
 @media (min-width: 720px) {
-  .features {
-    grid-template-columns: 1fr 1fr;
+  .fact {
+    grid-template-columns: 190px minmax(0, 1fr);
+    padding: 26px 0;
   }
 }
 
-/* --------------------------------------------------------------------- how */
+/* ------------------------------------------------------------------- close */
 
-.how {
-  padding-bottom: clamp(56px, 9vw, 96px);
+.close {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  padding-bottom: clamp(56px, 8vw, 96px);
 }
 
-/* Numbered because these genuinely happen in order. */
-.steps {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: clamp(24px, 4vw, 44px);
-  margin: 18px 0 40px;
-  padding: 0;
-}
-
-.steps li {
-  border-top: 1px solid var(--line-strong);
-  padding-top: 16px;
-}
-
-.steps__n {
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.steps h3 {
-  margin: 10px 0 6px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.012em;
-}
-
-.steps p {
+.close__line {
   margin: 0;
-  font-size: 14.5px;
-  color: var(--muted);
+  font-family: var(--mono);
+  font-size: clamp(1.05rem, 2.1vw, 1.4rem);
+  letter-spacing: -0.03em;
 }
 
-/* -------------------------------------------------------------------- foot */
+/* ------------------------------------------------------------------- foot */
 
 .foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px 20px;
   max-width: var(--wide);
   margin: 0 auto;
-  padding: 26px var(--pad) 44px;
-  border-top: 1px solid var(--line);
-  color: var(--faint);
+  padding: 22px var(--pad) 44px;
+  border-top: 1px solid var(--rule-soft);
 }
 
 .foot a {
-  color: var(--muted);
+  color: var(--pencil);
+}
+
+.foot__right {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#release:empty {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ reveal */
+
+/* One sequence, on load: the card is set a line at a time. Base styles are the
+   finished state, so no-JS and reduced-motion both land on a readable page. */
+.reveal {
+  animation: rise 0.62s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.rule.reveal {
+  animation-name: draw;
+}
+
+.reveal--1 { animation-delay: 0.06s; }
+.reveal--2 { animation-delay: 0.12s; }
+.reveal--3 { animation-delay: 0.18s; }
+.reveal--4 { animation-delay: 0.24s; }
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+}
+
+@keyframes draw {
+  from {
+    transform: scaleX(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+
   *,
   *::before,
   *::after {
