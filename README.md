@@ -45,7 +45,7 @@ that user id, and every write re-checks ownership by joining back to
 `boards.user_id`; a card id alone is never trusted.
 
 The project has a single $0 tier, so Stacks is free: signing in is the only
-gate. Nobody runs a checkout, which is why `yard customers` stays empty.
+gate. Nobody runs a checkout, which is why `yard users` stays empty.
 
 Drag uses Pointer Events, not HTML5 drag-and-drop (no touch support, and an
 unstylable drag image). One endpoint, `POST /api/boards/:id/reorder`, covers
@@ -114,11 +114,11 @@ advances the clock at I/O boundaries.
     yard service logs --since 2h
 
 Nothing serves a draft release, so pushing is safe to repeat as often as you
-like; the app only changes for customers at `yard releases publish`.
+like; the app only changes for users at `yard releases publish`.
 Migrations apply themselves at deploy; you never run them by hand.
 
 The project follows the `Production` channel and starts with no sandboxes. To
-publish somewhere customers can't see, create one, hold the storefront where
+publish somewhere users can't see, create one, hold the storefront where
 it is, and ship when it looks right:
 
     yard sandbox create preview
