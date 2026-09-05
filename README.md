@@ -1,6 +1,8 @@
 # Stacks
 
-[![create-in-yard](assets/create-in-yard.png)](https://dash.yard.sh/projects?action=create&repo=https%3A%2F%2Fgithub.com%2Fyard-sh%2Fyard-stacks)
+<p align="center">
+<img src="https://i.imgur.com/eRpMu2n.png" width="200"alt="Create in Yard" />
+</p>
 
 A free kanban board (boards, columns, cards, drag-and-drop) hosted end to end
 on Yard: a static frontend, a fetch-handler backend, a per-project SQLite
