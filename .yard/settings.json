@@ -12,6 +12,7 @@
     }
   ],
   "landing_page": {
+    "type": "custom",
     "dir": "landing-page"
   },
   "pricing": {
