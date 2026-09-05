@@ -6,12 +6,6 @@ A free kanban board (boards, columns, cards, drag-and-drop) hosted end to end
 on Yard: a static frontend, a fetch-handler backend, a per-project SQLite
 database, and buyer sign-in. There is no separate server and no auth code.
 
-- Product page: <https://tatelax.yard.sh/stacks>
-- App: <https://tatelax.yard.sh/stacks/app/>
-
-Use the link above, or paste this repository's URL into the Create from GitHub
-URL field of the Yard dashboard's Create Project dialog.
-
 ## Layout
 
     .yard/
