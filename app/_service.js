@@ -7,7 +7,7 @@
 // Clients can never spoof these: the edge strips inbound X-Yard-* first, and
 // `yard dev` stamps the same headers locally from the persona you pick.
 // The service entry in .yard/settings.json sets access: "authenticated", so
-// anonymous visitors are sent through sign-in before they reach this code.
+// Yard Auth signs anonymous visitors in before they reach this code.
 
 const MAX_NAME = 80;
 const MAX_TITLE = 200;

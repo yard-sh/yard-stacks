@@ -6,7 +6,8 @@
 
 A free kanban board (boards, columns, cards, drag-and-drop) hosted end to end
 on Yard: a static frontend, a fetch-handler backend, a per-project SQLite
-database, and buyer sign-in. There is no separate server and no auth code.
+database, and Yard Auth for sign-in. There is no separate server and no auth
+code.
 
 ## Layout
 
@@ -43,10 +44,16 @@ dashboard instead; the files still upload, they are just not served.
 
 ## How it fits together
 
-The service's `access` is `"authenticated"`, so Yard signs visitors in and
-hands the service a trusted `X-Yard-User-Id` header. Every row is scoped to
-that user id, and every write re-checks ownership by joining back to
-`boards.user_id`; a card id alone is never trusted.
+The service's `access` is `"authenticated"`, so Yard Auth signs visitors in
+and hands the service a trusted `X-Yard-User-Id` header. The first sign-in
+shows a consent screen that names Stacks and what it receives; after that,
+sign-in is silent until the person disconnects Stacks on the security page of
+their Yard account. Every row is scoped to that user id, and every write
+re-checks ownership by joining back to `boards.user_id`; a card id alone is
+never trusted.
+
+Yard Auth is included with Basic and Pro. A service whose `access` is not
+`public` cannot be deployed without it.
 
 The project has a single $0 tier, so Stacks is free: signing in is the only
 gate. Nobody runs a checkout, which is why `yard users` stays empty.
@@ -73,7 +80,7 @@ Two details worth knowing before editing:
 
 serves the landing page at `http://localhost:9875/stacks/` and the app at
 `http://localhost:9875/stacks/app/`, with the migrations applied to a local
-database under `.yard/dev/`. There is no real sign-in locally: the app's
+database under `.yard/dev/`. There is no Yard Auth locally: the app's
 `authenticated` gate sends you to a persona picker instead, or pick one up
 front with `yard dev --as signed-in`. Files are watched, so a save reloads,
 and a new migration file applies the moment it is saved. `yard dev --reset-db`
