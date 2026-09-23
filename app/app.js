@@ -199,7 +199,7 @@ function el(tag, className, text) {
 
 async function loadBoards() {
   state.boards = await api("api/boards");
-  const wanted = hashBoardId() || localStorage.getItem("stacks.board");
+  const wanted = hashBoardId() || remembered("stacks.board");
   const exists = state.boards.some((b) => b.id === wanted);
   state.boardId = exists ? wanted : state.boards[0] && state.boards[0].id;
   renderMenu();
@@ -208,7 +208,7 @@ async function loadBoards() {
 async function loadBoard(id) {
   if (!id) return;
   state.boardId = id;
-  localStorage.setItem("stacks.board", id);
+  remember("stacks.board", id);
   if (hashBoardId() !== id) location.hash = "board=" + id;
   const data = await api("api/boards/" + id);
   state.board = data;
@@ -216,6 +216,22 @@ async function loadBoard(id) {
   document.title = data.board.name + " · Stacks";
   render();
   renderMenu();
+}
+
+// localStorage throws when site data is blocked. It only holds conveniences
+// (last board, theme), so a failure is ignored rather than stopping the app.
+function remembered(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function remember(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {}
 }
 
 function hashBoardId() {
@@ -866,9 +882,7 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
       matchMedia("(prefers-color-scheme: dark)").matches);
   const next = dark ? "light" : "dark";
   document.documentElement.dataset.theme = next;
-  try {
-    localStorage.setItem("stacks.theme", next);
-  } catch {}
+  remember("stacks.theme", next);
 });
 
 // __yard/auth/me is answered by Yard itself, hosted and under yard dev, so no
@@ -881,7 +895,11 @@ async function renderAccount() {
   accountEl.textContent = "";
   if (!me || !me.authenticated) return;
 
-  if (me.email) accountEl.append(el("span", "account__email", me.email));
+  if (me.email) {
+    const avatar = el("span", "account__avatar", me.email.charAt(0).toUpperCase());
+    avatar.setAttribute("aria-hidden", "true");
+    accountEl.append(avatar, el("span", "account__email", me.email));
+  }
   const out = document.createElement("a");
   out.href = "__yard/auth/logout";
   out.textContent = "Sign out";

@@ -6,6 +6,8 @@
   <meta name="color-scheme" content="light dark" />
   <title>Stacks: a free kanban board</title>
   <meta name="description" content="A free kanban board. Sign in with Yard and the first board is already made: three columns, waiting for the first card." />
+  <!-- The headline face is above the fold; fetch it alongside the stylesheet. -->
+  <link rel="preload" href="fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="styles.css" />
   <!--
     Yard injects embed.js into every landing page it serves, hosted and under
@@ -15,108 +17,251 @@
   -->
 </head>
 <body>
-  <header class="bar">
-    <span class="mark">
-      <span class="mark__glyph" aria-hidden="true"></span>
-      Stacks
-    </span>
-    <!-- Relative links only: the page serves under /<slug>/ (and under
-         /<slug>/@<sandbox>/ in a sandbox), so "app/" is always this project's app. -->
-    <a class="btn btn--sm" href="app/">Open Stacks</a>
+  <!-- Relative links only: the page serves under /<slug>/ (and under
+       /<slug>/@<sandbox>/ in a sandbox), so "app/" is always this project's app. -->
+  <header class="nav">
+    <div class="wrap nav__inner">
+      <a class="brand" href="./" aria-label="Stacks home">
+        <span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        Stacks
+      </a>
+      <nav class="nav__links" aria-label="Sections">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#details">Details</a>
+      </nav>
+      <div class="nav__actions">
+        <a class="nav__signin" data-yard-when="signed_out" href="app/">Sign in</a>
+        <a class="btn btn--sm" href="app/">Open Stacks</a>
+      </div>
+    </div>
   </header>
 
-  <!-- The red rule across the top of an index card. The page's only colour. -->
-  <div class="rule rule--margin" role="presentation"></div>
-
   <main>
+    <!-- ------------------------------------------------------------ hero -->
     <section class="hero">
-      <p class="label reveal">Free kanban board</p>
+      <div class="wrap hero__grid">
+        <div class="hero__copy">
+          <p class="tag reveal">Free kanban board</p>
+          <h1 class="reveal reveal--1">Your board is <span class="accent">already made.</span></h1>
+          <p class="lede reveal reveal--2" data-yard="tagline">
+            Sign in and your first board is waiting: three columns and a place
+            for the first card. No workspace to name, nobody to invite.
+          </p>
+          <div class="hero__cta reveal reveal--3">
+            <a class="btn btn--lg" data-yard-when="signed_out" href="app/">Sign up, it's free</a>
+            <a class="btn btn--lg" data-yard-when="signed_in" href="app/">Open your boards</a>
+            <span class="hero__note">
+              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="currentColor" opacity=".16"/><path d="M5.2 9.3l2.4 2.3 5.2-5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Free forever. No credit card required.
+            </span>
+          </div>
+        </div>
 
-      <h1 class="reveal reveal--1">The board is<br />already made.</h1>
-
-      <div class="rule reveal reveal--2" role="presentation"></div>
-
-      <p class="lede reveal reveal--3" data-yard="tagline">
-        Sign in with Yard and your first board is waiting: three columns and
-        somewhere to put the first card. No workspace to name, nobody to invite.
-      </p>
-
-      <div class="actions reveal reveal--4">
-        <a class="btn" data-yard-when="signed_out" href="app/">
-          Sign in with Yard
-        </a>
-        <a class="btn" data-yard-when="signed_in" href="app/">
-          Open your boards
-        </a>
-        <span class="note">Free. No card, no trial clock.</span>
+        <!-- The argument for a kanban app is a card you can move, so the board is real. -->
+        <div class="hero__demo">
+        <div class="stage">
+          <div class="stage__chrome" aria-hidden="true">
+            <span class="stage__brand"><span class="brand__mark"><i></i><i></i><i></i></span>Stacks</span>
+            <span class="stage__picker">Launch week<svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="stage__avatar">A</span>
+          </div>
+          <div class="board" id="board">
+            <div class="b-col">
+              <div class="b-col__head">
+                <span class="b-col__name">To do</span>
+                <span class="b-col__n">2</span>
+              </div>
+              <div class="b-col__cards">
+                <div class="b-card"><span class="chip chip--coral"></span>Draft the launch note</div>
+                <div class="b-card"><span class="chip chip--yellow"></span>Fix the sign-in copy<span class="b-card__meta">Notes</span></div>
+              </div>
+            </div>
+            <div class="b-col">
+              <div class="b-col__head">
+                <span class="b-col__name">In progress</span>
+                <span class="b-col__n">1</span>
+              </div>
+              <div class="b-col__cards">
+                <div class="b-card"><span class="chip chip--blue"></span>Rewrite the pricing page<span class="b-card__meta">Notes</span></div>
+              </div>
+            </div>
+            <div class="b-col">
+              <div class="b-col__head">
+                <span class="b-col__name">Done</span>
+                <span class="b-col__n">1</span>
+              </div>
+              <div class="b-col__cards">
+                <div class="b-card"><span class="chip chip--mint"></span>Ship the changelog</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="stage__hint">Interactive preview. Drag a card between columns.</p>
+        </div>
       </div>
     </section>
 
-    <!-- The argument for a kanban app is a card you can move, so the board is real. -->
-    <section class="stack">
-      <div class="board" id="board">
-        <div class="b-col">
-          <div class="b-col__head">
-            <span class="label">To do</span>
-            <span class="b-col__n">2</span>
+    <!-- -------------------------------------------------------- features -->
+    <section class="features" id="features">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="tag">Stacks basics</p>
+          <h2>A board that stays out of your way.</h2>
+          <p class="section-head__sub">Three columns, as many cards as you like, and nothing between you and the next thing to do.</p>
+        </header>
+
+        <div class="tabs" data-tabs>
+          <div class="tabs__list" role="tablist" aria-label="Features">
+            <button class="tab tab--yellow" role="tab" id="tab-save" aria-controls="panel-save" aria-selected="true">
+              <span class="tab__title">Saves itself</span>
+              <span class="tab__body">There is no save button. New cards, renamed columns and every move persist the moment you make them.</span>
+            </button>
+            <button class="tab tab--coral" role="tab" id="tab-yours" aria-controls="panel-yours" aria-selected="false" tabindex="-1">
+              <span class="tab__title">Yours only</span>
+              <span class="tab__body">Boards are scoped to your Yard account. Sign-in is handled by Yard, so Stacks never sees a password.</span>
+            </button>
+            <button class="tab tab--mint" role="tab" id="tab-boards" aria-controls="panel-boards" aria-selected="false" tabindex="-1">
+              <span class="tab__title">One board per thing</span>
+              <span class="tab__body">Work, the house, the thing you'll get to eventually. Keep as many boards as you need and switch from the top bar.</span>
+            </button>
           </div>
-          <div class="b-col__cards">
-            <div class="b-card">Draft the launch note</div>
-            <div class="b-card">Fix the sign-in copy</div>
-          </div>
-        </div>
-        <div class="b-col">
-          <div class="b-col__head">
-            <span class="label">Doing</span>
-            <span class="b-col__n">1</span>
-          </div>
-          <div class="b-col__cards">
-            <div class="b-card">Rewrite the pricing page</div>
-          </div>
-        </div>
-        <div class="b-col">
-          <div class="b-col__head">
-            <span class="label">Done</span>
-            <span class="b-col__n">1</span>
-          </div>
-          <div class="b-col__cards">
-            <div class="b-card">Ship the changelog</div>
+
+          <div class="tabs__panels">
+            <div class="panel panel--yellow" role="tabpanel" id="panel-save" aria-labelledby="tab-save">
+              <div class="mock mock--sheet">
+                <span class="chip chip--blue"></span>
+                <p class="mock__title">Rewrite the pricing page</p>
+                <p class="mock__label">Notes</p>
+                <p class="mock__notes">Lead with "free". Cut the comparison table, nobody reads it. Keep the FAQ to three questions.</p>
+                <p class="mock__saved">
+                  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.4l2.9 2.8 6-6.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Saved
+                </p>
+              </div>
+            </div>
+
+            <div class="panel panel--coral" role="tabpanel" id="panel-yours" aria-labelledby="tab-yours" hidden>
+              <div class="mock mock--signin">
+                <span class="mock__lock" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 28 28"><rect x="5" y="12" width="18" height="13" rx="3.5" fill="currentColor"/><path d="M9 12V9a5 5 0 0110 0v3" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>
+                </span>
+                <p class="mock__title">Sign in to Stacks</p>
+                <p class="mock__muted">Your boards are private to your account.</p>
+                <span class="mock__button">Continue with Yard</span>
+                <p class="mock__fine">Stacks gets a user id. Never your password.</p>
+              </div>
+            </div>
+
+            <div class="panel panel--mint" role="tabpanel" id="panel-boards" aria-labelledby="tab-boards" hidden>
+              <div class="mock mock--menu">
+                <p class="mock__label">Your boards</p>
+                <ul>
+                  <li class="is-current"><span class="swatch swatch--blue"></span>Launch week<span class="mock__count">4</span></li>
+                  <li><span class="swatch swatch--coral"></span>The house<span class="mock__count">11</span></li>
+                  <li><span class="swatch swatch--yellow"></span>Reading list<span class="mock__count">7</span></li>
+                  <li><span class="swatch swatch--mint"></span>Someday<span class="mock__count">23</span></li>
+                </ul>
+                <span class="mock__new">+ New board</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <p class="hint">Drag a card across. This one is real, it just forgets.</p>
     </section>
 
-    <!-- Three claims, written on the lines of the card. -->
-    <section class="facts">
-      <div class="fact">
-        <span class="label">Saves itself</span>
-        <p>There is no save button. New cards, renamed columns, and every move persist the moment you make them.</p>
-      </div>
-      <div class="fact">
-        <span class="label">Yours only</span>
-        <p>Boards are scoped to your Yard account. Sign-in is handled by Yard, so Stacks never sees a password.</p>
-      </div>
-      <div class="fact">
-        <span class="label">One per thing</span>
-        <p>Work, the house, the thing you will get to eventually. Keep as many boards as you need and switch from the top bar.</p>
+    <!-- ------------------------------------------------------------- how -->
+    <section class="how" id="how">
+      <div class="wrap">
+        <header class="section-head section-head--center">
+          <h2>Up and running in under a minute.</h2>
+        </header>
+        <ol class="steps">
+          <li class="step">
+            <span class="step__n">1</span>
+            <h3>Sign in with Yard</h3>
+            <p>Use your Yard account. No new password and no onboarding survey.</p>
+          </li>
+          <li class="step">
+            <span class="step__n">2</span>
+            <h3>Find your board</h3>
+            <p>To do, In progress, Done. Already there, already named. Rename them if you like.</p>
+          </li>
+          <li class="step">
+            <span class="step__n">3</span>
+            <h3>Move a card</h3>
+            <p>Add what's on your mind and drag it along as it gets done.</p>
+          </li>
+        </ol>
       </div>
     </section>
 
+    <!-- --------------------------------------------------------- details -->
+    <section class="details" id="details">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="tag">The small things</p>
+          <h2>The details that make it a daily tool.</h2>
+        </header>
+        <div class="grid">
+          <article class="tile">
+            <span class="tile__icon tile__icon--blue" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 9h8M8 13h8M8 17h5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </span>
+            <h3>Notes on every card</h3>
+            <p>Open a card to write down the details. The title stays short, the notes hold the rest.</p>
+          </article>
+          <article class="tile">
+            <span class="tile__icon tile__icon--coral" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M10.5 18h3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </span>
+            <h3>Drag on any screen</h3>
+            <p>Mouse, trackpad or thumb. On a phone, press and hold a card to pick it up.</p>
+          </article>
+          <article class="tile">
+            <span class="tile__icon tile__icon--yellow" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M6.5 10h1M10.5 10h1M14.5 10h3M7 14h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </span>
+            <h3>Keyboard friendly</h3>
+            <p>Enter adds a card, Esc closes what's open. Your hands can stay where they are.</p>
+          </article>
+          <article class="tile">
+            <span class="tile__icon tile__icon--mint" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 3.5a8.5 8.5 0 010 17z" fill="currentColor"/></svg>
+            </span>
+            <h3>Light and dark</h3>
+            <p>Follows your system, or flip it from the top bar. Your choice sticks.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------- close -->
     <section class="close">
-      <p class="close__line">Nothing to set up. Sign in and move a card.</p>
-      <a class="btn" href="app/">Open Stacks</a>
+      <div class="wrap close__inner">
+        <h2>Nothing to set up.<br />Sign in and move a card.</h2>
+        <div class="close__cta">
+          <a class="btn btn--lg btn--light" href="app/">Open Stacks</a>
+          <span class="close__note">Free forever, for as many boards as you need.</span>
+        </div>
+      </div>
     </section>
   </main>
 
   <footer class="foot">
-    <span class="label">Stacks · free forever</span>
-    <span class="label foot__right">
-      <span id="release" data-yard="latest_release.tag_name"></span>
-      Hosted on <a href="https://yard.sh">Yard</a>
-    </span>
+    <div class="wrap foot__inner">
+      <a class="brand brand--foot" href="./">
+        <span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        Stacks
+      </a>
+      <p class="foot__meta">
+        <span id="release" data-yard="latest_release.tag_name"></span>
+        Hosted on <a href="https://yard.sh">Yard</a>
+      </p>
+    </div>
   </footer>
 
   <script src="demo.js"></script>
+  <script src="tabs.js"></script>
 </body>
 </html>

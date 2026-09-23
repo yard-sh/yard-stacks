@@ -20,7 +20,12 @@ code.
       index.html          app shell
       styles.css          design tokens, light + dark
       app.js              rendering, editing, and the pointer-drag engine
-    landing-page/         the marketing page
+    landing-page/         the marketing page (landing_page.type: custom)
+      index.html          page markup; data-yard bindings for the tagline and release
+      styles.css          design tokens, light + dark
+      demo.js             the draggable board in the hero (nothing persists)
+      tabs.js             the feature tabs
+      fonts/              Bricolage Grotesque + Instrument Sans (woff2, SIL OFL 1.1)
 
 All project configuration lives in `.yard/settings.json`. The service is one
 entry on the `services` list, which declares its mount path, access mode, and
@@ -41,6 +46,19 @@ The marketing page is declared on the same file:
 `"type": "custom"` is what serves the files in that directory. Set it to
 `"default"` and the project shows the default page you edit in the
 dashboard instead; the files still upload, they are just not served.
+
+## What it needs
+
+Check what your team's plan includes with `yard me --json` and read
+`.team_permissions`:
+
+- `service`: the hosted backend and database (Pro).
+- `yard_auth`: the `"authenticated"` access mode on the app (Basic and Pro).
+- `custom_project_pages`: the custom landing page (Pro). Without it, switch
+  `landing_page.type` to `"default"` as above.
+
+The landing page has no outside dependencies: its two typefaces are bundled
+in `landing-page/fonts/` under the SIL Open Font License 1.1.
 
 ## How it fits together
 

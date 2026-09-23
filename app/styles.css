@@ -1,78 +1,136 @@
-/* Stacks app: clean and minimal.
-   Two typographic registers carry the whole personality:
-   a humanist sans for anything a person wrote, and a letterspaced mono for
-   anything the system knows (counts, labels, state, timestamps). */
+/* Stacks app. Shares its design with the landing page: navy ink, one strong
+   blue, Bricolage Grotesque for names and Instrument Sans for everything else.
+   The board itself sits on the brand blue with light columns and white cards,
+   exactly as the landing page's preview shows it. */
+
+/* Both faces ship in fonts/ (Latin subset, variable weight). Each is under the
+   SIL Open Font License 1.1:
+   Bricolage Grotesque, Copyright 2022 The Bricolage Grotesque Project Authors
+     (https://github.com/ateliertriay/bricolage)
+   Instrument Sans, Copyright 2022 The Instrument Sans Project Authors
+     (https://github.com/Instrument/instrument-sans) */
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
+  src: url("fonts/bricolage-grotesque.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("fonts/instrument-sans.woff2") format("woff2");
+}
 
 :root {
   color-scheme: light;
 
-  --paper: #fcfcfb;
-  --rail: #f3f3f1;
+  --paper: #ffffff;       /* chrome: top bar, sheet, menus */
+  --rail: #f6f7fa;        /* hover fills, recessed inputs */
   --surface: #ffffff;
-  --ink: #16181a;
-  --muted: #6c7175;
-  --faint: #9aa0a4;
-  --line: #e5e5e1;
-  --line-strong: #d6d6d1;
-  --accent: #1c6b58;
+  --ink: #0f1430;
+  --muted: #4a5068;
+  --faint: #80859a;
+  --line: #e4e6ee;
+  --line-strong: #d3d7e3;
+
+  --accent: #2451e6;
+  --accent-press: #1b3fbf;
   --accent-ink: #ffffff;
-  --accent-soft: #e9f1ee;
-  --danger: #a8302a;
+  --accent-soft: #e8edff;
+  --danger: #d23b2b;
+  --mint: #1fc79a;
 
-  --shadow-card: 0 1px 1px rgba(20, 24, 26, 0.03);
-  --shadow-lift: 0 18px 40px -12px rgba(20, 24, 26, 0.28), 0 2px 8px rgba(20, 24, 26, 0.08);
-  --shadow-pop: 0 12px 32px -8px rgba(20, 24, 26, 0.18), 0 1px 2px rgba(20, 24, 26, 0.08);
+  --canvas: #2451e6;      /* the board's background */
+  --column: #eef0f6;
+  --column-ink: #0f1430;
+  --count: #dfe2ee;
+  --card: #ffffff;
+  --slot: #dfe2ee;        /* drop placeholder */
+  --target: #e8edff;
+  --target-ring: #9fb4ff;
 
-  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --shadow-card: 0 1px 0 rgba(16, 22, 49, 0.12);
+  --shadow-lift: 0 18px 36px -14px rgba(13, 20, 64, 0.35), 0 3px 8px rgba(13, 20, 64, 0.1);
+  --shadow-pop: 0 18px 40px -16px rgba(13, 20, 64, 0.3), 0 2px 6px rgba(13, 20, 64, 0.08);
 
-  --r-sm: 6px;
-  --r-md: 9px;
+  --display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --r-sm: 8px;
+  --r-md: 10px;
   --r-lg: 14px;
-  --topbar-h: 56px;
+  --topbar-h: 58px;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --paper: #0e1011;
-  --rail: #151719;
-  --surface: #1a1d1f;
-  --ink: #eceeef;
-  --muted: #949a9e;
-  --faint: #6d7478;
-  --line: #262a2d;
-  --line-strong: #343a3e;
-  --accent: #55c3a0;
-  --accent-ink: #06221b;
-  --accent-soft: #14261f;
-  --danger: #e2726b;
+  --paper: #121834;
+  --rail: #1a2144;
+  --surface: #121834;
+  --ink: #f2f3f8;
+  --muted: #b3b8cf;
+  --faint: #858aa6;
+  --line: #232a4d;
+  --line-strong: #323b68;
 
-  --shadow-card: none;
-  --shadow-lift: 0 20px 44px -12px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
-  --shadow-pop: 0 14px 34px -8px rgba(0, 0, 0, 0.6);
+  --accent: #3f69ff;
+  --accent-press: #5b7fff;
+  --accent-ink: #ffffff;
+  --accent-soft: #1a2560;
+  --danger: #ff7a66;
+
+  --canvas: #16215f;
+  --column: #0f1530;
+  --column-ink: #f2f3f8;
+  --count: #232a4d;
+  --card: #1b2347;
+  --slot: #232d5c;
+  --target: #1a2560;
+  --target-ring: #3f69ff;
+
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 20px 40px -14px rgba(0, 0, 0, 0.7), 0 3px 8px rgba(0, 0, 0, 0.4);
+  --shadow-pop: 0 20px 44px -16px rgba(0, 0, 0, 0.7);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --paper: #0e1011;
-    --rail: #151719;
-    --surface: #1a1d1f;
-    --ink: #eceeef;
-    --muted: #949a9e;
-    --faint: #6d7478;
-    --line: #262a2d;
-    --line-strong: #343a3e;
-    --accent: #55c3a0;
-    --accent-ink: #06221b;
-    --accent-soft: #14261f;
-    --danger: #e2726b;
+    --paper: #121834;
+    --rail: #1a2144;
+    --surface: #121834;
+    --ink: #f2f3f8;
+    --muted: #b3b8cf;
+    --faint: #858aa6;
+    --line: #232a4d;
+    --line-strong: #323b68;
 
-    --shadow-card: none;
-    --shadow-lift: 0 20px 44px -12px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
-    --shadow-pop: 0 14px 34px -8px rgba(0, 0, 0, 0.6);
+    --accent: #3f69ff;
+    --accent-press: #5b7fff;
+    --accent-ink: #ffffff;
+    --accent-soft: #1a2560;
+    --danger: #ff7a66;
+
+    --canvas: #16215f;
+    --column: #0f1530;
+    --column-ink: #f2f3f8;
+    --count: #232a4d;
+    --card: #1b2347;
+    --slot: #232d5c;
+    --target: #1a2560;
+    --target-ring: #3f69ff;
+
+    --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.35);
+    --shadow-lift: 0 20px 40px -14px rgba(0, 0, 0, 0.7), 0 3px 8px rgba(0, 0, 0, 0.4);
+    --shadow-pop: 0 20px 44px -16px rgba(0, 0, 0, 0.7);
   }
 }
 
@@ -95,10 +153,10 @@ body {
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--canvas);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
@@ -113,16 +171,15 @@ select {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 3px solid var(--target-ring);
   outline-offset: 2px;
-  border-radius: 3px;
+  border-radius: 6px;
 }
 
+/* The small, system-stated voice: counts, hints, timestamps, labels. */
 .mono {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12.5px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -139,6 +196,7 @@ select {
   background: var(--accent);
   color: var(--accent-ink);
   border-radius: 0 0 var(--r-sm) 0;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -157,43 +215,50 @@ select {
   gap: 16px;
   border-bottom: 1px solid var(--line);
   background: var(--paper);
+  color: var(--ink);
 }
 
 .topbar__group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 
 .wordmark {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding-right: 12px;
-  margin-right: 2px;
+  gap: 9px;
+  padding-right: 14px;
   border-right: 1px solid var(--line);
-  height: 22px;
+  height: 28px;
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   white-space: nowrap;
 }
 
-/* The mark is the name: three stacked bars, shortest on top. */
+/* Three stacked bars in a blue tile: a column, seen from the side. */
 .wordmark__mark {
-  width: 13px;
-  height: 13px;
-  display: block;
-  background-image: linear-gradient(var(--accent), var(--accent)),
-    linear-gradient(var(--accent), var(--accent)),
-    linear-gradient(var(--accent), var(--accent));
-  background-repeat: no-repeat;
-  background-size: 7px 3px, 10px 3px, 13px 3px;
-  background-position: 0 0, 0 5px, 0 10px;
+  display: inline-grid;
+  gap: 2px;
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  border-radius: 7px;
+  background: var(--accent);
 }
+
+.wordmark__mark i {
+  display: block;
+  border-radius: 1.5px;
+  background: #fff;
+}
+
+.wordmark__mark i:nth-child(1) { width: 100%; }
+.wordmark__mark i:nth-child(2) { width: 70%; background: #ffcf33; }
+.wordmark__mark i:nth-child(3) { width: 85%; }
 
 .picker {
   position: relative;
@@ -203,21 +268,21 @@ select {
 .picker__button {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   max-width: 46vw;
-  padding: 5px 9px;
-  background: transparent;
+  padding: 6px 11px;
+  background: var(--rail);
   border: 1px solid transparent;
   border-radius: var(--r-sm);
-  font-size: 14px;
-  font-weight: 550;
-  letter-spacing: -0.01em;
+  font-size: 14.5px;
+  font-weight: 600;
   cursor: pointer;
+  transition: border-color 0.15s;
 }
 
-.picker__button:hover {
-  background: var(--rail);
-  border-color: var(--line);
+.picker__button:hover,
+.picker__button[aria-expanded="true"] {
+  border-color: var(--line-strong);
 }
 
 .picker__button > span {
@@ -233,28 +298,29 @@ select {
 
 .menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
   z-index: 50;
-  min-width: 240px;
+  min-width: 260px;
   max-height: 70vh;
   overflow-y: auto;
-  padding: 5px;
+  padding: 6px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow-pop);
 }
 
 .menu__item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 7px 9px;
+  padding: 9px 10px;
   background: none;
   border: 0;
   border-radius: var(--r-sm);
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
 }
@@ -264,6 +330,7 @@ select {
 }
 
 .menu__item[aria-current="true"] {
+  background: var(--accent-soft);
   color: var(--accent);
   font-weight: 600;
 }
@@ -276,20 +343,21 @@ select {
 
 .menu__count {
   margin-left: auto;
-  color: var(--faint);
+  color: inherit;
+  opacity: 0.8;
 }
 
 .menu__rule {
   height: 1px;
-  margin: 5px 4px;
+  margin: 6px 4px;
   background: var(--line);
 }
 
 .iconbutton {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   flex: none;
   padding: 0;
   background: transparent;
@@ -297,11 +365,11 @@ select {
   border-radius: var(--r-sm);
   color: var(--muted);
   cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
 }
 
 .iconbutton:hover {
   background: var(--rail);
-  border-color: var(--line);
   color: var(--ink);
 }
 
@@ -330,14 +398,31 @@ select {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--faint);
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 14px;
+  color: var(--muted);
 }
 
 .account a {
-  color: var(--muted);
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.account a:hover {
+  color: var(--accent);
+}
+
+.account__avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--mint);
+  color: #0f1430;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .account__email {
@@ -359,11 +444,12 @@ select {
   height: calc(100dvh - var(--topbar-h));
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 14px;
   padding: 20px 20px 24px;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
 }
 
 .board:focus {
@@ -371,34 +457,35 @@ select {
 }
 
 .board__status {
-  color: var(--faint);
   padding: 8px 4px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
 }
 
 /* ------------------------------------------------------------------ column */
 
 .column {
   flex: none;
-  width: 288px;
+  width: 284px;
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--rail);
-  border: 1px solid var(--line);
+  background: var(--column);
+  color: var(--column-ink);
   border-radius: var(--r-lg);
-  transition: border-color 0.16s ease, background-color 0.16s ease;
+  transition: background-color 0.15s, box-shadow 0.15s;
 }
 
 .column.is-target {
-  border-color: var(--accent);
-  background: var(--accent-soft);
+  background: var(--target);
+  box-shadow: inset 0 0 0 2px var(--target-ring);
 }
 
 .column__head {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 12px 9px;
+  padding: 12px 10px 10px 14px;
   cursor: grab;
   /* pan-y, not none: a plain touch still scrolls the board. A deliberate
      hold is what picks a column up (see the drag engine in app.js). */
@@ -412,14 +499,13 @@ select {
 .column__name {
   flex: 1;
   min-width: 0;
-  padding: 3px 5px;
-  margin: -3px -5px;
+  padding: 3px 6px;
+  margin: -3px -6px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--r-sm);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.005em;
+  font-size: 14.5px;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -431,7 +517,7 @@ select {
 }
 
 .column__name:focus {
-  background: var(--surface);
+  background: var(--card);
   border-color: var(--accent);
   outline: none;
   overflow: visible;
@@ -440,16 +526,28 @@ select {
 
 .column__count {
   flex: none;
-  color: var(--faint);
-  font-family: var(--mono);
-  font-size: 11px;
+  min-width: 24px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--count);
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
 /* Destructive controls stay out of the way until you go looking for them. */
 .column__head .iconbutton {
+  width: 28px;
+  height: 28px;
   opacity: 0;
-  transition: opacity 0.14s ease;
+  transition: opacity 0.14s ease, background-color 0.15s;
+}
+
+.column__head .iconbutton:hover {
+  background: var(--count);
+  color: var(--danger);
 }
 
 .column:hover .column__head .iconbutton,
@@ -478,60 +576,60 @@ body.is-dragging .column__head .iconbutton {
 
 .card {
   position: relative;
-  margin-bottom: 6px;
-  padding: 10px 11px;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  margin-bottom: 8px;
+  padding: 11px 12px;
+  background: var(--card);
   border-radius: var(--r-md);
   box-shadow: var(--shadow-card);
   cursor: pointer;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+  transition: box-shadow 0.12s;
 }
 
 .card:hover {
-  border-color: var(--line-strong);
+  box-shadow: var(--shadow-card), inset 0 0 0 2px var(--accent);
+}
+
+.card:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-card), inset 0 0 0 2px var(--accent), 0 0 0 3px var(--target-ring);
 }
 
 .card__title {
-  font-size: 13.5px;
+  font-size: 14.5px;
+  font-weight: 500;
   line-height: 1.4;
-  letter-spacing: -0.005em;
   overflow-wrap: anywhere;
 }
 
 .card__note {
-  margin-top: 7px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  margin-top: 8px;
   color: var(--faint);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12.5px;
+  font-weight: 600;
 }
 
+/* Two rules: the notes icon, same as the landing page's cards. */
 .card__note::before {
   content: "";
-  width: 9px;
-  height: 7px;
-  background-image: linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor);
-  background-repeat: no-repeat;
-  background-size: 9px 1px, 9px 1px, 6px 1px;
-  background-position: 0 0, 0 3px, 0 6px;
+  width: 11px;
+  height: 9px;
+  border-top: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
 }
 
-/* Drag: the card lifts off the board and tilts into its direction of travel.
-   This is the one place the interface raises its voice. */
+/* Drag: the card lifts off the board and tilts into its direction of travel. */
 .card.is-dragging {
   position: fixed;
   z-index: 60;
   margin: 0;
   cursor: grabbing;
   pointer-events: none;
-  border-color: var(--line-strong);
   box-shadow: var(--shadow-lift);
   will-change: transform;
 }
@@ -547,14 +645,9 @@ body.is-dragging .column__head .iconbutton {
 }
 
 .placeholder {
-  margin-bottom: 6px;
-  border: 1px dashed var(--line-strong);
+  margin-bottom: 8px;
   border-radius: var(--r-md);
-  background: transparent;
-}
-
-.column.is-target .placeholder {
-  border-color: var(--accent);
+  background: var(--slot);
 }
 
 .placeholder--column {
@@ -562,6 +655,7 @@ body.is-dragging .column__head .iconbutton {
   align-self: stretch;
   margin-bottom: 0;
   border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.16);
 }
 
 body.is-dragging {
@@ -576,32 +670,34 @@ body.is-dragging .column:not(.is-dragging-column) {
 /* ---------------------------------------------------------------- composer */
 
 .composer {
-  width: 100%;
   display: block;
-  padding: 8px 10px;
+  width: 100%;
+  padding: 9px 10px;
   background: transparent;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: var(--r-md);
   color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
   text-align: left;
-  font-size: 13px;
   cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
 }
 
 .composer:hover {
-  background: var(--surface);
-  border-color: var(--line);
-  color: var(--ink);
+  background: var(--count);
+  color: var(--column-ink);
 }
 
 .composer__input {
-  width: 100%;
   display: block;
-  padding: 10px 11px;
-  background: var(--surface);
-  border: 1px solid var(--accent);
+  width: 100%;
+  padding: 11px 12px;
+  background: var(--card);
+  border: 0;
   border-radius: var(--r-md);
-  font-size: 13.5px;
+  box-shadow: inset 0 0 0 2px var(--accent);
+  font-size: 14.5px;
   line-height: 1.4;
   resize: none;
   outline: none;
@@ -609,50 +705,55 @@ body.is-dragging .column:not(.is-dragging-column) {
 
 .composer__hint {
   display: flex;
-  gap: 10px;
-  padding: 6px 2px 0;
+  gap: 12px;
+  padding: 8px 2px 0;
   color: var(--faint);
+  font-weight: 500;
 }
 
 kbd {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  padding: 1px 4px;
+  padding: 1px 5px;
   border: 1px solid var(--line-strong);
-  border-radius: 3px;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--card);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
 }
 
-/* The trailing rail affordance for adding a column. */
+/* The trailing affordance for adding a column, sitting on the blue. */
 .addcolumn {
   flex: none;
-  width: 288px;
-  padding: 12px;
-  background: transparent;
-  border: 1px dashed var(--line-strong);
+  width: 284px;
+  padding: 13px 14px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 0;
   border-radius: var(--r-lg);
-  color: var(--muted);
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 600;
   text-align: left;
-  font-size: 13px;
   cursor: pointer;
+  transition: background-color 0.15s;
 }
 
 .addcolumn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  border-style: solid;
+  background: rgba(255, 255, 255, 0.26);
 }
 
 /* ------------------------------------------------------------------ button */
 
 .button {
-  padding: 7px 12px;
+  padding: 9px 16px;
   background: var(--surface);
   border: 1px solid var(--line-strong);
-  border-radius: var(--r-sm);
-  font-size: 13px;
-  font-weight: 500;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
 }
 
 .button:hover {
@@ -666,6 +767,8 @@ kbd {
 
 .button--danger:hover {
   border-color: var(--danger);
+  background: var(--danger);
+  color: #fff;
 }
 
 /* ------------------------------------------------------------------- sheet */
@@ -682,20 +785,21 @@ kbd {
 .sheet__scrim {
   position: absolute;
   inset: 0;
-  background: rgba(16, 20, 22, 0.34);
+  background: rgba(10, 14, 36, 0.45);
   animation: fade 0.14s ease;
 }
 
 .sheet__panel {
   position: relative;
-  width: min(520px, 100%);
-  max-height: 84dvh;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  width: min(560px, 100%);
+  max-height: 84dvh;
+  padding: 20px 22px 22px;
   background: var(--surface);
+  color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: var(--r-lg);
+  border-radius: 18px;
   box-shadow: var(--shadow-pop);
   animation: rise 0.16s cubic-bezier(0.2, 0, 0, 1);
 }
@@ -705,19 +809,28 @@ kbd {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+
+/* The column name above the title reads as a small pill. */
+#sheet-column {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .sheet__title {
   width: 100%;
-  padding: 4px 6px;
-  margin: 0 -6px 14px;
+  padding: 4px 8px;
+  margin: 0 -8px 16px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--r-sm);
-  font-size: 19px;
-  font-weight: 600;
-  line-height: 1.3;
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   resize: none;
   overflow: hidden;
@@ -734,22 +847,23 @@ kbd {
 
 .sheet__label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .sheet__body {
   flex: 1;
-  min-height: 140px;
-  padding: 10px 11px;
-  background: var(--paper);
+  min-height: 160px;
+  padding: 12px 14px;
+  background: var(--rail);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
-  font-size: 13.5px;
+  font-size: 15px;
   line-height: 1.55;
   resize: none;
 }
 
 .sheet__body:focus {
+  background: var(--surface);
   border-color: var(--accent);
   outline: none;
 }
@@ -759,11 +873,12 @@ kbd {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .sheet__meta {
   color: var(--faint);
+  font-weight: 500;
 }
 
 /* ------------------------------------------------------------------- toast */
@@ -771,16 +886,17 @@ kbd {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 22px;
+  bottom: 24px;
   z-index: 90;
-  transform: translateX(-50%);
-  padding: 9px 14px;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: var(--r-sm);
-  font-size: 13px;
+  padding: 11px 16px;
+  background: #0f1430;
+  color: #fff;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 500;
   box-shadow: var(--shadow-pop);
-  animation: rise 0.16s cubic-bezier(0.2, 0, 0, 1);
+  transform: translateX(-50%);
+  animation: rise 0.16s cubic-bezier(0.2, 0, 0, 1) both;
 }
 
 @keyframes fade {
@@ -796,13 +912,20 @@ kbd {
   }
 }
 
-.sheet__panel,
-.toast {
+.sheet__panel {
   animation-fill-mode: both;
 }
 
+/* The toast centres itself with a transform, so it rises with its own. */
 .toast {
-  transform: translateX(-50%);
+  animation-name: toast-rise;
+}
+
+@keyframes toast-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -815,10 +938,23 @@ kbd {
 }
 
 @media (max-width: 560px) {
+  .topbar {
+    padding: 0 12px;
+    gap: 10px;
+  }
+
+  /* The mark alone carries the brand on a phone; the board name needs the room. */
+  .wordmark {
+    font-size: 0;
+    gap: 0;
+    padding-right: 10px;
+  }
+
   .board {
     padding: 14px 14px 18px;
     scroll-snap-type: x mandatory;
   }
+
   .column,
   .addcolumn {
     width: 84vw;

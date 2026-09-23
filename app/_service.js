@@ -614,7 +614,7 @@ function redactPath(pathname) {
     .join("/");
 }
 
-// D1 reports affected rows per statement; useful for confirming a cascade.
+// The database reports affected rows per statement; useful for confirming a cascade.
 function changed(result) {
   return (result && result.meta && result.meta.changes) || 0;
 }
