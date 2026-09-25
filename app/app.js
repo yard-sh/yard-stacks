@@ -900,8 +900,10 @@ async function renderAccount() {
     avatar.setAttribute("aria-hidden", "true");
     accountEl.append(avatar, el("span", "account__email", me.email));
   }
+  // Sign out at the project root and land on the landing page: back at the
+  // app, the Yard session would sign them straight in again.
   const out = document.createElement("a");
-  out.href = "__yard/auth/logout";
+  out.href = "../__yard/auth/logout?return=/";
   out.textContent = "Sign out";
   accountEl.append(out);
 }
