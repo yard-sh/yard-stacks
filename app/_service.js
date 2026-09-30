@@ -148,18 +148,19 @@ async function allBoards(env, user) {
 async function seedBoard(env, user) {
   const boardId = crypto.randomUUID();
   const columnIds = STARTER_COLUMNS.map(() => crypto.randomUUID());
+  const now = Date.now();
 
   const stmts = [
     env.DB.prepare(
-      "INSERT INTO boards (id, user_id, name, position) VALUES (?1, ?2, ?3, 0)",
-    ).bind(boardId, user, "My board"),
+      "INSERT INTO boards (id, user_id, name, position, created_at) VALUES (?1, ?2, ?3, 0, ?4)",
+    ).bind(boardId, user, "My board", now),
   ];
 
   STARTER_COLUMNS.forEach((name, i) => {
     stmts.push(
       env.DB.prepare(
-        "INSERT INTO board_columns (id, board_id, name, position) VALUES (?1, ?2, ?3, ?4)",
-      ).bind(columnIds[i], boardId, name, i),
+        "INSERT INTO board_columns (id, board_id, name, position, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+      ).bind(columnIds[i], boardId, name, i, now),
     );
   });
 
@@ -170,8 +171,8 @@ async function seedBoard(env, user) {
   welcome.forEach(([title, body], i) => {
     stmts.push(
       env.DB.prepare(
-        "INSERT INTO cards (id, column_id, board_id, title, body, position) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-      ).bind(crypto.randomUUID(), columnIds[0], boardId, title, body, i),
+        "INSERT INTO cards (id, column_id, board_id, title, body, position, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)",
+      ).bind(crypto.randomUUID(), columnIds[0], boardId, title, body, i, now),
     );
   });
 
@@ -197,16 +198,17 @@ async function createBoard(request, env, user) {
 
   const boardId = crypto.randomUUID();
   const position = existing.length;
+  const now = Date.now();
   const stmts = [
     env.DB.prepare(
-      "INSERT INTO boards (id, user_id, name, position) VALUES (?1, ?2, ?3, ?4)",
-    ).bind(boardId, user, clean, position),
+      "INSERT INTO boards (id, user_id, name, position, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+    ).bind(boardId, user, clean, position, now),
   ];
   STARTER_COLUMNS.forEach((name, i) => {
     stmts.push(
       env.DB.prepare(
-        "INSERT INTO board_columns (id, board_id, name, position) VALUES (?1, ?2, ?3, ?4)",
-      ).bind(crypto.randomUUID(), boardId, name, i),
+        "INSERT INTO board_columns (id, board_id, name, position, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+      ).bind(crypto.randomUUID(), boardId, name, i, now),
     );
   });
   await env.DB.batch(stmts);
@@ -303,9 +305,9 @@ async function createColumn(request, env, board) {
   const id = crypto.randomUUID();
   const position = row.maxpos + 1;
   await env.DB.prepare(
-    "INSERT INTO board_columns (id, board_id, name, position) VALUES (?1, ?2, ?3, ?4)",
+    "INSERT INTO board_columns (id, board_id, name, position, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
   )
-    .bind(id, board.id, clean, position)
+    .bind(id, board.id, clean, position, Date.now())
     .run();
 
   log("column.create", {
@@ -377,9 +379,9 @@ async function createCard(request, env, column) {
   const cleanBody = text(body, MAX_BODY) || "";
 
   await env.DB.prepare(
-    "INSERT INTO cards (id, column_id, board_id, title, body, position) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+    "INSERT INTO cards (id, column_id, board_id, title, body, position, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)",
   )
-    .bind(id, column.id, column.board_id, cleanTitle, cleanBody, position)
+    .bind(id, column.id, column.board_id, cleanTitle, cleanBody, position, Date.now())
     .run();
 
   log("card.create", {
@@ -405,9 +407,9 @@ async function updateCard(request, env, card) {
   const body = patch.body === undefined ? card.body : text(patch.body, MAX_BODY) || "";
 
   await env.DB.prepare(
-    "UPDATE cards SET title = ?1, body = ?2, updated_at = datetime('now') WHERE id = ?3",
+    "UPDATE cards SET title = ?1, body = ?2, updated_at = ?3 WHERE id = ?4",
   )
-    .bind(title, body, card.id)
+    .bind(title, body, Date.now(), card.id)
     .run();
 
   log("card.update", {
@@ -455,6 +457,7 @@ async function reorder(request, env, board) {
 
   const stmts = [];
   const seen = new Set();
+  const now = Date.now();
 
   for (const [columnId, cardIds] of Object.entries(columns)) {
     if (!validColumns.has(columnId)) {
@@ -479,8 +482,8 @@ async function reorder(request, env, board) {
       seen.add(cardId);
       stmts.push(
         env.DB.prepare(
-          "UPDATE cards SET column_id = ?1, position = ?2, updated_at = datetime('now') WHERE id = ?3 AND board_id = ?4",
-        ).bind(columnId, index, cardId, board.id),
+          "UPDATE cards SET column_id = ?1, position = ?2, updated_at = ?3 WHERE id = ?4 AND board_id = ?5",
+        ).bind(columnId, index, now, cardId, board.id),
       );
     });
   }

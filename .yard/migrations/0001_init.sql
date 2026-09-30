@@ -6,13 +6,15 @@
 -- The table is board_columns, not columns, to stay clear of SQLite keywords.
 -- Deletes cascade explicitly in _service.js: foreign-key enforcement is off
 -- by default in SQLite, so ON DELETE CASCADE here would silently do nothing.
+--
+-- Times are milliseconds since the epoch, written by the service.
 
 CREATE TABLE IF NOT EXISTS boards (
   id         TEXT PRIMARY KEY,
   user_id    TEXT NOT NULL,
   name       TEXT NOT NULL,
   position   INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at INTEGER NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_boards_user ON boards (user_id, position);
@@ -22,7 +24,7 @@ CREATE TABLE IF NOT EXISTS board_columns (
   board_id   TEXT NOT NULL,
   name       TEXT NOT NULL,
   position   INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at INTEGER NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_columns_board ON board_columns (board_id, position);
@@ -34,8 +36,8 @@ CREATE TABLE IF NOT EXISTS cards (
   title      TEXT NOT NULL,
   body       TEXT NOT NULL DEFAULT '',
   position   INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_cards_column ON cards (column_id, position);
