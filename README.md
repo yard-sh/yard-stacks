@@ -52,10 +52,10 @@ dashboard instead; the files still upload, they are just not served.
 Check what your team's plan includes with `yard me --json` and read
 `.team_permissions`:
 
-- `service`: the hosted backend and database (Pro).
+- `service`: the hosted backend and database (Basic and Pro).
 - `yard_auth`: the `"authenticated"` access mode on the app (Basic and Pro).
-- `custom_project_pages`: the custom landing page (Pro). Without it, switch
-  `landing_page.type` to `"default"` as above.
+- `custom_project_pages`: the custom landing page (Basic and Pro). Without it,
+  switch `landing_page.type` to `"default"` as above.
 
 The landing page has no outside dependencies: its two typefaces are bundled
 in `landing-page/fonts/` under the SIL Open Font License 1.1.
