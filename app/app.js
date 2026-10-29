@@ -25,6 +25,7 @@ const state = {
   boardId: null,
   board: null,
   composerFor: null, // column id with an open card composer
+  draft: "", // unsent composer text, so a render doesn't wipe it
   openCard: null,
 };
 
@@ -48,6 +49,17 @@ async function api(path, options = {}) {
     throw err;
   }
   return payload;
+}
+
+// Every change shows before the server confirms it, so a card can be moved or
+// edited while its create is still in flight. Writes leave one at a time, in
+// the order they were made, so the server sees them in that order too.
+let writes = Promise.resolve();
+
+function save(path, options) {
+  const result = writes.then(() => api(path, options));
+  writes = result.catch(() => {});
+  return result;
 }
 
 function toast(message) {
@@ -127,19 +139,38 @@ function renderColumn(column) {
   for (const card of column.cards) list.append(renderCard(card, column));
 
   const foot = el("div", "column__foot");
-  if (state.composerFor === column.id) {
-    foot.append(cardComposer(column));
-  } else {
-    const add = el("button", "composer", "+  Add a card");
-    add.addEventListener("click", () => {
-      state.composerFor = column.id;
-      render();
-    });
-    foot.append(add);
-  }
+  foot.append(renderFoot(column));
 
   node.append(head, list, foot);
   return node;
+}
+
+function renderFoot(column) {
+  if (state.composerFor === column.id) return cardComposer(column);
+  const add = el("button", "composer", "+  Add a card");
+  add.addEventListener("click", () => setComposer(column.id));
+  return add;
+}
+
+// Only the affected column feet change, never the whole board: the composer
+// closes on blur, which lands mid-press, and a full render then would replace
+// the button or card under the pointer before the press completes.
+function setComposer(columnId) {
+  const previous = state.composerFor;
+  if (previous === columnId) return;
+  state.composerFor = columnId;
+  state.draft = "";
+  for (const id of [previous, columnId]) {
+    const column = state.board.columns.find((c) => c.id === id);
+    const node = columnNode(id);
+    if (column && node) node.querySelector(".column__foot").replaceChildren(renderFoot(column));
+  }
+  const input = boardEl.querySelector(".composer__input");
+  if (input) input.focus();
+}
+
+function columnNode(id) {
+  return boardEl.querySelector('.column[data-id="' + id + '"]');
 }
 
 function renderCard(card, column) {
@@ -159,32 +190,32 @@ function cardComposer(column) {
   input.rows = 2;
   input.maxLength = 200;
   input.placeholder = "What needs doing?";
+  input.value = state.draft;
 
   const hint = el("div", "composer__hint mono");
   hint.innerHTML =
     "<span><kbd>Enter</kbd> to add</span><span><kbd>Esc</kbd> to close</span>";
 
+  input.addEventListener("input", () => {
+    state.draft = input.value;
+  });
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       const title = input.value.trim();
       if (!title) return;
       input.value = "";
-      guard(() => addCard(column, title));
+      state.draft = "";
+      addCard(column, title);
     } else if (event.key === "Escape") {
-      state.composerFor = null;
-      render();
+      setComposer(null);
     }
   });
   input.addEventListener("blur", () => {
-    if (!input.value.trim()) {
-      state.composerFor = null;
-      render();
-    }
+    if (!input.value.trim()) setComposer(null);
   });
 
   wrap.append(input, hint);
-  queueMicrotask(() => input.focus());
   return wrap;
 }
 
@@ -210,6 +241,8 @@ async function loadBoard(id) {
   state.boardId = id;
   remember("stacks.board", id);
   if (hashBoardId() !== id) location.hash = "board=" + id;
+  // Queued writes land first, or the board would come back without them.
+  await writes;
   const data = await api("api/boards/" + id);
   state.board = data;
   boardNameEl.textContent = data.board.name;
@@ -266,7 +299,7 @@ function renderMenu() {
     const name = prompt("Name your board", "Untitled board");
     if (name && name.trim()) {
       guard(async () => {
-        const board = await api("api/boards", {
+        const board = await save("api/boards", {
           method: "POST",
           body: JSON.stringify({ name: name.trim() }),
         });
@@ -283,7 +316,7 @@ function renderMenu() {
     const name = prompt("Rename board", current);
     if (name && name.trim() && name.trim() !== current) {
       guard(async () => {
-        await api("api/boards/" + state.boardId, {
+        await save("api/boards/" + state.boardId, {
           method: "PATCH",
           body: JSON.stringify({ name: name.trim() }),
         });
@@ -302,7 +335,7 @@ function renderMenu() {
     }
     if (!confirm("Delete this board and everything on it?")) return;
     guard(async () => {
-      await api("api/boards/" + state.boardId, { method: "DELETE" });
+      await save("api/boards/" + state.boardId, { method: "DELETE" });
       state.board = null;
       await loadBoards();
       await loadBoard(state.boardId);
@@ -330,14 +363,31 @@ document.addEventListener("click", (event) => {
 
 /* ------------------------------------------------------------------ writes */
 
-async function addCard(column, title) {
-  const card = await api("api/columns/" + column.id + "/cards", {
-    method: "POST",
-    body: JSON.stringify({ title }),
-  });
-  column.cards.push({ ...card, body: "" });
-  state.composerFor = column.id;
-  render();
+// The card shows at once, under an id picked here, so it can be opened or
+// dragged straight away. It is appended rather than rendered: a render would
+// rebuild the composer the next title is being typed into.
+function addCard(column, title) {
+  const card = {
+    id: crypto.randomUUID(),
+    column_id: column.id,
+    title,
+    body: "",
+    updated_at: Date.now(),
+  };
+  column.cards.push(card);
+
+  const node = columnNode(column.id);
+  const list = node.querySelector(".column__cards");
+  list.append(renderCard(card, column));
+  list.scrollTop = list.scrollHeight;
+  node.querySelector(".column__count").textContent = String(column.cards.length);
+
+  guard(() =>
+    save("api/columns/" + column.id + "/cards", {
+      method: "POST",
+      body: JSON.stringify({ id: card.id, title }),
+    }),
+  );
 }
 
 async function commitColumnName(column, input) {
@@ -349,7 +399,7 @@ async function commitColumnName(column, input) {
   }
   column.name = name;
   await guard(() =>
-    api("api/columns/" + column.id, {
+    save("api/columns/" + column.id, {
       method: "PATCH",
       body: JSON.stringify({ name }),
     }),
@@ -362,18 +412,16 @@ function deleteColumn(column) {
     ? `Delete "${column.name}" and its ${count} card${count === 1 ? "" : "s"}?`
     : `Delete "${column.name}"?`;
   if (!confirm(message)) return;
-  guard(async () => {
-    await api("api/columns/" + column.id, { method: "DELETE" });
-    state.board.columns = state.board.columns.filter((c) => c.id !== column.id);
-    render();
-  });
+  state.board.columns = state.board.columns.filter((c) => c.id !== column.id);
+  render();
+  guard(() => save("api/columns/" + column.id, { method: "DELETE" }));
 }
 
 function startColumnComposer() {
   const name = prompt("Name your column", "");
   if (!name || !name.trim()) return;
   guard(async () => {
-    const column = await api("api/boards/" + state.boardId + "/columns", {
+    const column = await save("api/boards/" + state.boardId + "/columns", {
       method: "POST",
       body: JSON.stringify({ name: name.trim() }),
     });
@@ -417,7 +465,7 @@ function closeSheet() {
   open.card.body = body;
   render();
   guard(() =>
-    api("api/cards/" + open.card.id, {
+    save("api/cards/" + open.card.id, {
       method: "PATCH",
       body: JSON.stringify({ title, body }),
     }),
@@ -435,7 +483,7 @@ sheetDelete.addEventListener("click", () => {
   state.openCard = null;
   open.column.cards = open.column.cards.filter((c) => c.id !== open.card.id);
   render();
-  guard(() => api("api/cards/" + open.card.id, { method: "DELETE" }));
+  guard(() => save("api/cards/" + open.card.id, { method: "DELETE" }));
 });
 
 sheetTitle.addEventListener("input", () => autosize(sheetTitle));
@@ -474,6 +522,7 @@ document.addEventListener("keydown", (event) => {
 // every other card FLIPs to its new position so the gap opens smoothly.
 
 let drag = null;
+let settling = null; // lands a drop that is still gliding into its slot
 
 boardEl.addEventListener("pointerdown", onPointerDown);
 
@@ -493,6 +542,9 @@ function onPointerDown(event) {
 
   const el = kind === "card" ? cardEl : headEl.closest(".column");
   if (!el) return;
+
+  // Picking up during the previous drop's glide lands that drop first.
+  if (settling) settling();
 
   drag = {
     kind,
@@ -730,8 +782,9 @@ function onPointerUp(event) {
     return;
   }
 
-  cancelAnimationFrame(drag.frame);
-  const { el, placeholder, kind } = drag;
+  const dropped = drag;
+  teardown();
+  const { el, placeholder, kind } = dropped;
   const target = placeholder.getBoundingClientRect();
 
   // Settle: glide the ghost into the slot it will occupy.
@@ -740,34 +793,32 @@ function onPointerUp(event) {
     "translate3d(" + target.left + "px," + target.top + "px,0) rotate(0deg)";
 
   const finish = () => {
+    if (settling !== finish) return;
+    settling = null;
     el.style.cssText = "";
     el.classList.remove("is-dragging", "is-dragging-column");
     placeholder.replaceWith(el);
     document.body.classList.remove("is-dragging");
-    if (drag && drag.column) drag.column.classList.remove("is-target");
-    const payload = kind === "card" ? cardPayload() : columnPayload();
-    teardown();
+    if (dropped.column) dropped.column.classList.remove("is-target");
+    const payload = kind === "card" ? cardPayload(dropped) : columnPayload();
     syncModelFromDOM();
     persist(payload);
   };
 
+  settling = finish;
   el.addEventListener("transitionend", finish, { once: true });
-  setTimeout(() => {
-    if (el.classList.contains("is-dragging") || el.classList.contains("is-dragging-column")) {
-      finish();
-    }
-  }, 240);
+  setTimeout(finish, 240);
 }
 
-function cardPayload() {
+function cardPayload(dropped) {
   const columns = {};
-  const touched = new Set([drag.sourceColumnId]);
+  const touched = new Set([dropped.sourceColumnId]);
   // The placeholder is already gone by now, so read the card's new home.
-  const landed = drag.el.closest(".column");
+  const landed = dropped.el.closest(".column");
   if (landed) touched.add(landed.dataset.id);
 
   for (const id of touched) {
-    const column = boardEl.querySelector('.column[data-id="' + id + '"]');
+    const column = columnNode(id);
     if (!column) continue;
     columns[id] = [...column.querySelectorAll(".card")].map((c) => c.dataset.id);
   }
@@ -780,8 +831,8 @@ function columnPayload() {
   };
 }
 
-// The DOM is the source of truth right after a drag; fold it back into state
-// so the next render doesn't undo the move.
+// The DOM is the source of truth right after a drag and already shows the
+// move, so fold it back into state rather than render the board again.
 function syncModelFromDOM() {
   if (!state.board) return;
   const byId = new Map();
@@ -800,15 +851,15 @@ function syncModelFromDOM() {
         return card;
       })
       .filter(Boolean);
+    columnEl.querySelector(".column__count").textContent = String(existing.cards.length);
     columns.push(existing);
   }
   state.board.columns = columns;
-  render();
 }
 
 function persist(payload) {
   guard(() =>
-    api("api/boards/" + state.boardId + "/reorder", {
+    save("api/boards/" + state.boardId + "/reorder", {
       method: "POST",
       body: JSON.stringify(payload),
     }),

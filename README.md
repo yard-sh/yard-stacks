@@ -81,13 +81,18 @@ unstylable drag image). One endpoint, `POST /api/boards/:id/reorder`, covers
 reordering within a column, moving a card across columns, and reordering the
 columns themselves.
 
-Two details worth knowing before editing:
+Three details worth knowing before editing:
 
 - **Relative URLs only.** The app is mounted at `/stacks/app/`, so
   `fetch("api/boards")`, never `/api/boards`. Board selection lives in
   `location.hash` rather than a pushState path for the same reason. The
   landing page links to `app/` too: it serves under `/stacks/`, and under
   `/stacks/@<sandbox>/` in a sandbox. `yard service check` lints for this.
+- **Changes show before they save.** The page applies every edit first and
+  sends the writes behind it one at a time, in order. A new card takes an id
+  the browser picks (`POST /api/columns/:id/cards` accepts an optional UUID
+  `id`), so it can be opened or dragged before its create lands. A failed
+  write shows a toast and reloads the board from the server.
 - **Migrations are not transactional.** Keep every statement idempotent
   (`CREATE TABLE IF NOT EXISTS`); a mid-file failure leaves the file
   unrecorded in `_yard_migrations` and re-runs it from the top next deploy.
@@ -118,8 +123,8 @@ Every line starts with `[stacks]` and is a single event, so it greps cleanly:
     [stacks] request method=POST path=/api/boards/5b1c37d7/reorder status=200 user=5b1c37d7 ms=6
 
 Events: `request`, `auth.rejected`, `board.seed|create|open|rename|delete`,
-`column.create|rename|delete`, `card.create|update|delete`, `cards.reorder`,
-`reorder.rejected`. Failures go to `console.error` as `request.failed`.
+`column.create|rename|delete`, `card.create|update|delete`, `card.rejected`,
+`cards.reorder`, `reorder.rejected`. Failures go to `console.error` as `request.failed`.
 
 `cards.reorder` names the drag it came from: `across-columns`,
 `within-column`, or `columns-only`.

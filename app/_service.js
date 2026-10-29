@@ -19,6 +19,8 @@ const MAX_CARDS_PER_BOARD = 500;
 
 const STARTER_COLUMNS = ["To do", "In progress", "Done"];
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -353,7 +355,7 @@ async function deleteColumn(env, column) {
 /* ----------------------------------------------------------------- cards */
 
 async function createCard(request, env, column) {
-  const { title, body } = await readJSON(request);
+  const { id: requested, title, body } = await readJSON(request);
   const cleanTitle = text(title, MAX_TITLE);
   if (!cleanTitle) return json({ error: "give the card a title" }, 400);
 
@@ -375,15 +377,27 @@ async function createCard(request, env, column) {
     .bind(column.id)
     .first();
 
-  const id = crypto.randomUUID();
+  // The app picks the id so the card is usable before this request lands. A
+  // taken id is refused rather than overwritten: it may be someone else's.
+  const id =
+    typeof requested === "string" && UUID.test(requested) ? requested : crypto.randomUUID();
   const position = row.maxpos + 1;
   const cleanBody = text(body, MAX_BODY) || "";
 
-  await env.DB.prepare(
-    "INSERT INTO cards (id, column_id, board_id, title, body, position, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)",
+  const result = await env.DB.prepare(
+    "INSERT INTO cards (id, column_id, board_id, title, body, position, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)" +
+      " ON CONFLICT(id) DO NOTHING",
   )
     .bind(id, column.id, column.board_id, cleanTitle, cleanBody, position, Date.now())
     .run();
+  if (!changed(result)) {
+    log("card.rejected", {
+      board: shortId(column.board_id),
+      column: shortId(column.id),
+      reason: "id-taken",
+    });
+    return json({ error: "that card already exists" }, 409);
+  }
 
   log("card.create", {
     board: shortId(column.board_id),
@@ -609,8 +623,6 @@ function shortId(id) {
 // Otherwise the request line would carry full UUIDs while every domain line
 // carries truncated ones. Shortening here keeps the log consistent and lets
 // "path=/api/boards/d1f649b5/reorder" line up with "board=d1f649b5".
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 function redactPath(pathname) {
   return pathname
     .split("/")
