@@ -20,8 +20,8 @@ code.
       index.html          app shell
       styles.css          design tokens, light + dark
       app.js              rendering, editing, and the pointer-drag engine
-    landing-page/         the marketing page (landing_page.type: custom)
-      index.html          page markup; data-yard bindings for the tagline and release
+    landing-page/         the marketing page (landing_page.dir)
+      index.html          page markup; data-yard-when for signed-in visitors
       styles.css          design tokens, light + dark
       demo.js             the draggable board in the hero (nothing persists)
       tabs.js             the feature tabs
@@ -41,11 +41,9 @@ service deploys is an edit there followed by a push.
 
 The marketing page is declared on the same file:
 
-    "landing_page": { "type": "custom", "dir": "landing-page" }
+    "landing_page": { "dir": "landing-page" }
 
-`"type": "custom"` is what serves the files in that directory. Set it to
-`"default"` and the project shows the default page you edit in the
-dashboard instead; the files still upload, they are just not served.
+The files in that directory are the project's landing page.
 
 ## What it needs
 
@@ -54,8 +52,9 @@ Check what your team's plan includes with `yard me --json` and read
 
 - `service`: the hosted backend and database (Basic and Pro).
 - `yard_auth`: the `"authenticated"` access mode on the app (Basic and Pro).
-- `custom_project_pages`: the custom landing page (Basic and Pro). Without it,
-  switch `landing_page.type` to `"default"` as above.
+- `landing_pages`: the landing page (Basic and Pro). Without it, remove the
+  `landing_page` block and the `landing-page/` directory; the project then has
+  no landing page.
 
 The landing page has no outside dependencies: its two typefaces are bundled
 in `landing-page/fonts/` under the SIL Open Font License 1.1.
