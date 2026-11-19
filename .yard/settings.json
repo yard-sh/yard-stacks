@@ -1,8 +1,13 @@
 {
-  "version": 9,
+  "version": 10,
   "project_slug": "stacks",
   "ignore_files": [],
   "services": [
+    {
+      "dir": "landing-page",
+      "name": "landing-page",
+      "url": "/"
+    },
     {
       "dir": "app",
       "name": "app",
@@ -11,9 +16,6 @@
       "database_access": true
     }
   ],
-  "landing_page": {
-    "dir": "landing-page"
-  },
   "pricing": {
     "tiers": [
       {
