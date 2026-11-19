@@ -50,11 +50,9 @@ The files in that directory are the project's landing page.
 Check what your team's plan includes with `yard me --json` and read
 `.team_permissions`:
 
-- `service`: the hosted backend and database (Basic and Pro).
+- `service`: the landing page, the hosted backend and the database (Basic and
+  Pro).
 - `yard_auth`: the `"authenticated"` access mode on the app (Basic and Pro).
-- `landing_pages`: the landing page (Basic and Pro). Without it, remove the
-  `landing_page` block and the `landing-page/` directory; the project then has
-  no landing page.
 
 The landing page has no outside dependencies: its two typefaces are bundled
 in `landing-page/fonts/` under the SIL Open Font License 1.1.
